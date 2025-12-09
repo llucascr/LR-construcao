@@ -2,13 +2,14 @@ spring:
   application:
     name: management
   datasource:
-    driver-class-name: oracle.jdbc.driver.OracleDriver
-    url:
-    username:
-    password:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
+    database-platform: org.hibernate.dialect.OracleDialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
     show_sql: false
