@@ -3,6 +3,8 @@ package com.lr.construcao.management.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -29,5 +31,11 @@ public class Client {
 
     @Column(nullable = false, length = 50)
     private String phone;
+
+    @Column(name = "create_at", nullable = false, updatable = false)
+    private LocalDateTime createAt;
+
+    @Column(name = "update_at", nullable = false)
+    private LocalDateTime updateAt;
 
 }
