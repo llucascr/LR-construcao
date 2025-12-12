@@ -5,14 +5,17 @@ import com.lr.construcao.management.dto.response.Client.ClientResponseDTO;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
 import com.lr.construcao.management.model.Client;
 import com.lr.construcao.management.repository.ClientRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 
 import java.time.LocalDateTime;
 
-import static com.lr.construcao.management.mapper.ObjectMapper.parseObject;
-import static com.lr.construcao.management.mapper.ObjectMapper.parseListObjects;
+import static com.lr.construcao.management.mapper.ObjectMapper.*;
 
 @RequiredArgsConstructor
 @Service
@@ -34,6 +37,13 @@ public class ClientService {
                 .build();
 
         return parseObject(clientRepository.save(client), ClientResponseDTO.class);
+    }
+
+    public Page<ClientResponseDTO> findAll(int page, int numberOfClients) {
+        Pageable pageable = PageRequest.of(page, numberOfClients);
+        Page<Client> clients = clientRepository.findAll(pageable);
+
+        return new PageImpl<>(parsePageObjects(clients, ClientResponseDTO.class), pageable, clients.getTotalElements());
     }
 
 }
