@@ -2,6 +2,7 @@ package com.lr.construcao.management.service;
 
 import com.lr.construcao.management.dto.request.Client.ClientRequestDTO;
 import com.lr.construcao.management.dto.response.Client.ClientResponseDTO;
+import com.lr.construcao.management.exception.DataNotFoundException;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
 import com.lr.construcao.management.model.Client;
 import com.lr.construcao.management.repository.ClientRepository;
@@ -45,5 +46,14 @@ public class ClientService {
 
         return new PageImpl<>(parsePageObjects(clients, ClientResponseDTO.class), pageable, clients.getTotalElements());
     }
+
+    public ClientResponseDTO findById(Long id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Client wit id " + id + " not found"));
+
+        return parseObject(client, ClientResponseDTO.class);
+    }
+
+
 
 }

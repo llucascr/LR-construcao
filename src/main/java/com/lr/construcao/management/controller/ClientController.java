@@ -4,6 +4,7 @@ import com.lr.construcao.management.dto.request.Client.ClientRequestDTO;
 import com.lr.construcao.management.dto.response.Client.ClientResponseDTO;
 import com.lr.construcao.management.service.ClientService;
 import jakarta.validation.Valid;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,6 +37,14 @@ public class ClientController {
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int numberOfClients) {
         return ResponseEntity.status(HttpStatus.OK).body(service.findAll(page, numberOfClients).getContent());
+    }
+
+    @GetMapping(
+            value = "/findById",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ClientResponseDTO> findById(@NonNull @RequestParam Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
     }
 
 }
