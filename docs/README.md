@@ -19,7 +19,7 @@ A solução foca em **cálculos dinâmicos no backend** para evitar inconsistên
 * **Ferramentas:** Maven, Docker, Swagger
 
 ### Diagrama da Aplicação
-![Driagrama da aplicação V1](https://github.com/llucascr/LR-construcao/blob/lucas/docs/diagramas/driagrama_LR-construcoes_V1.png)
+![Driagrama da aplicação V2](https://github.com/llucascr/LR-construcao/blob/lucas/docs/diagramas/driagrama_LR-construcoes_V2.png)
 
 
 ## 🛠️ Como Executar o Projeto
