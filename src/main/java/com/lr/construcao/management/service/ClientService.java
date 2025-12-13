@@ -40,6 +40,19 @@ public class ClientService {
         return parseObject(clientRepository.save(client), ClientResponseDTO.class);
     }
 
+    public ClientResponseDTO update(ClientRequestDTO dto, Long clientId) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new DataNotFoundException("Client with id " + clientId + " not found"));
+
+        client.setName(dto.getName() != null ? dto.getName() : client.getName());
+        client.setEmail(dto.getEmail() != null ? dto.getEmail() : client.getEmail());
+        client.setPhone(dto.getPhone() != null ? dto.getPhone() : client.getPhone());
+        client.setCreateAt(client.getCreateAt());
+        client.setUpdateAt(LocalDateTime.now());
+
+        return parseObject(clientRepository.save(client), ClientResponseDTO.class);
+    }
+
     public Page<ClientResponseDTO> findAll(int page, int numberOfClients) {
         Pageable pageable = PageRequest.of(page, numberOfClients);
         Page<Client> clients = clientRepository.findAll(pageable);

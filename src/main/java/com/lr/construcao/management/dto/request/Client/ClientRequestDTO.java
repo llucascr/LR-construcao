@@ -1,10 +1,8 @@
 package com.lr.construcao.management.dto.request.Client;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import lombok.*;
 
 @Getter
 @Setter
@@ -12,12 +10,13 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ClientRequestDTO {
 
-    @NotBlank(message = "")
+    @Pattern(regexp = ".*\\S.*", message = "Empty fields")
     private String name;
 
-    @NotBlank
+    @Pattern(regexp = ".*\\S.*", message = "Empty fields")
+    @Email(message = "Email does not exist")
     private String email;
 
-    @NotBlank
+    @Pattern(regexp = ".*\\S.*", message = "Empty fields")
     private String phone;
 }

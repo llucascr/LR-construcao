@@ -59,4 +59,14 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.OK).body(service.findByName(name, page, numberOfClients).getContent());
     }
 
+    @PutMapping(
+            value = "/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ClientResponseDTO> update(@RequestBody @Valid ClientRequestDTO dto,
+                                                    @NonNull @RequestParam Long clientId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.update(dto, clientId));
+    }
+
 }
