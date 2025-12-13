@@ -54,6 +54,11 @@ public class ClientService {
         return parseObject(client, ClientResponseDTO.class);
     }
 
+    public Page<ClientResponseDTO> findByName(String name, int page, int numberOfClients) {
+        Pageable pageable = PageRequest.of(page, numberOfClients);
+        Page<Client> client = clientRepository.SearchByName(name, pageable);
 
+        return new PageImpl<>(parsePageObjects(client, ClientResponseDTO.class), pageable, client.getTotalElements());
+    }
 
 }

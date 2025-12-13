@@ -47,4 +47,16 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
     }
 
+    @GetMapping(
+            value = "/findByName",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<List<ClientResponseDTO>> findByName(
+            @NonNull @RequestParam String name,
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int numberOfClients
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findByName(name, page, numberOfClients).getContent());
+    }
+
 }
