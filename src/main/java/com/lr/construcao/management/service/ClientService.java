@@ -2,6 +2,7 @@ package com.lr.construcao.management.service;
 
 import com.lr.construcao.management.dto.request.Client.ClientRequestDTO;
 import com.lr.construcao.management.dto.response.Client.ClientResponseDTO;
+import com.lr.construcao.management.dto.response.DeleteResponseDTO;
 import com.lr.construcao.management.exception.DataNotFoundException;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
 import com.lr.construcao.management.model.Client;
@@ -51,6 +52,17 @@ public class ClientService {
         client.setUpdateAt(LocalDateTime.now());
 
         return parseObject(clientRepository.save(client), ClientResponseDTO.class);
+    }
+
+    public DeleteResponseDTO delete(Long clientId) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new DataNotFoundException("Client with id " + clientId + " not found"));
+
+        clientRepository.delete(client);
+        return new DeleteResponseDTO(
+                LocalDateTime.now(),
+                "The user " + client.getName() + " was deleted"
+        );
     }
 
     public Page<ClientResponseDTO> findAll(int page, int numberOfClients) {

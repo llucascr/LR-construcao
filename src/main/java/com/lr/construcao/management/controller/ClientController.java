@@ -2,6 +2,7 @@ package com.lr.construcao.management.controller;
 
 import com.lr.construcao.management.dto.request.Client.ClientRequestDTO;
 import com.lr.construcao.management.dto.response.Client.ClientResponseDTO;
+import com.lr.construcao.management.dto.response.DeleteResponseDTO;
 import com.lr.construcao.management.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -67,6 +68,14 @@ public class ClientController {
     public ResponseEntity<ClientResponseDTO> update(@RequestBody @Valid ClientRequestDTO dto,
                                                     @NonNull @RequestParam Long clientId) {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(dto, clientId));
+    }
+
+    @DeleteMapping(
+            value = "/delete",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<DeleteResponseDTO> delete(@NonNull @RequestParam Long clientId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.delete(clientId));
     }
 
 }
