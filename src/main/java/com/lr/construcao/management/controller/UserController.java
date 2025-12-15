@@ -3,6 +3,7 @@ package com.lr.construcao.management.controller;
 import com.lr.construcao.management.dto.request.User.UserRequestDTO;
 import com.lr.construcao.management.dto.response.User.UserResponseDTO;
 import com.lr.construcao.management.service.UserService;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,8 +25,20 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<UserResponseDTO> create(@RequestBody UserRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> create(@Valid @RequestBody UserRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    }
+
+    @PutMapping(
+            value = "/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<UserResponseDTO> update(
+            @Valid @RequestBody UserRequestDTO dto,
+            @NonNull @RequestParam Long userId)
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(service.update(dto, userId));
     }
 
     @GetMapping(

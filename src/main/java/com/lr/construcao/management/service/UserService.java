@@ -39,6 +39,18 @@ public class UserService {
         return parseObject(userRepository.save(user), UserResponseDTO.class);
     }
 
+    public UserResponseDTO update(UserRequestDTO dto, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Client wit email " + dto.getEmail() + " not found"));
+
+        user.setName(dto.getName() != null ? dto.getName() : user.getName());
+        user.setEmail(dto.getEmail() != null ? dto.getEmail() : user.getEmail());
+        user.setPassword(dto.getPassword() != null ? dto.getPassword() : user.getPassword());
+        user.setUpdateAt(LocalDateTime.now());
+
+        return parseObject(userRepository.save(user), UserResponseDTO.class);
+    }
+
     public Page<UserResponseDTO> findAll(int page, int numberOfUsers) {
         Pageable pageable = PageRequest.of(page, numberOfUsers);
         Page<User> users = userRepository.findAll(pageable);
