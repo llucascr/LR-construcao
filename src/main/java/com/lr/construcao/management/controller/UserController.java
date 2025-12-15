@@ -3,6 +3,7 @@ package com.lr.construcao.management.controller;
 import com.lr.construcao.management.dto.request.User.UserRequestDTO;
 import com.lr.construcao.management.dto.response.User.UserResponseDTO;
 import com.lr.construcao.management.service.UserService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,6 +37,14 @@ public class UserController {
             @RequestParam(defaultValue = "10", required = false) int numberOfUsers
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(service.findAll(page, numberOfUsers).getContent());
+    }
+
+    @GetMapping(
+            value = "/findById",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<UserResponseDTO> findById(@NonNull @RequestParam Long userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findById(userId));
     }
 
 }

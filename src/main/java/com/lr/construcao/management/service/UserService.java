@@ -2,6 +2,7 @@ package com.lr.construcao.management.service;
 
 import com.lr.construcao.management.dto.request.User.UserRequestDTO;
 import com.lr.construcao.management.dto.response.User.UserResponseDTO;
+import com.lr.construcao.management.exception.DataNotFoundException;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
 import com.lr.construcao.management.model.User;
 import com.lr.construcao.management.repository.UserRepository;
@@ -29,7 +30,7 @@ public class UserService {
         User user = User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
-                .password(dto.getPassword()) 
+                .password(dto.getPassword())
                 .active(true)
                 .createAt(LocalDateTime.now())
                 .updateAt(LocalDateTime.now())
@@ -43,6 +44,13 @@ public class UserService {
         Page<User> users = userRepository.findAll(pageable);
 
         return new PageImpl<>(parsePageObjects(users, UserResponseDTO.class), pageable, users.getTotalElements());
+    }
+
+    public UserResponseDTO findById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Client wit id " + userId + " not found"));
+
+        return parseObject(user, UserResponseDTO.class);
     }
 
 }
