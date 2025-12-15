@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 public class UserResponseDTO {
     private String name;
     private String email;
-    private String password;
     private Boolean active;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;

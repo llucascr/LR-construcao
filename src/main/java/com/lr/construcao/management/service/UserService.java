@@ -6,6 +6,10 @@ import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
 import com.lr.construcao.management.model.User;
 import com.lr.construcao.management.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,13 +29,20 @@ public class UserService {
         User user = User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
-                .password(dto.getPassword())
+                .password(dto.getPassword()) 
                 .active(true)
                 .createAt(LocalDateTime.now())
                 .updateAt(LocalDateTime.now())
                 .build();
 
         return parseObject(userRepository.save(user), UserResponseDTO.class);
+    }
+
+    public Page<UserResponseDTO> findAll(int page, int numberOfUsers) {
+        Pageable pageable = PageRequest.of(page, numberOfUsers);
+        Page<User> users = userRepository.findAll(pageable);
+
+        return new PageImpl<>(parsePageObjects(users, UserResponseDTO.class), pageable, users.getTotalElements());
     }
 
 }
