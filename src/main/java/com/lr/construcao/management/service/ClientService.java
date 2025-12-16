@@ -61,7 +61,7 @@ public class ClientService {
         clientRepository.delete(client);
         return new DeleteResponseDTO(
                 LocalDateTime.now(),
-                "The user " + client.getName() + " was deleted"
+                "The user " + client.getName() + " was deleted!"
         );
     }
 

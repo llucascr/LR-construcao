@@ -1,6 +1,7 @@
 package com.lr.construcao.management.service;
 
 import com.lr.construcao.management.dto.request.User.UserRequestDTO;
+import com.lr.construcao.management.dto.response.DeleteResponseDTO;
 import com.lr.construcao.management.dto.response.User.UserResponseDTO;
 import com.lr.construcao.management.exception.DataNotFoundException;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
@@ -41,7 +42,7 @@ public class UserService {
 
     public UserResponseDTO update(UserRequestDTO dto, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException("Client wit email " + dto.getEmail() + " not found"));
+                .orElseThrow(() -> new DataNotFoundException("Client wit id " + userId + " not found"));
 
         user.setName(dto.getName() != null ? dto.getName() : user.getName());
         user.setEmail(dto.getEmail() != null ? dto.getEmail() : user.getEmail());
@@ -49,6 +50,17 @@ public class UserService {
         user.setUpdateAt(LocalDateTime.now());
 
         return parseObject(userRepository.save(user), UserResponseDTO.class);
+    }
+
+    public DeleteResponseDTO disable(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Client wit id " + userId + " not found"));
+
+        userRepository.disable(userId);
+        return new DeleteResponseDTO(
+                LocalDateTime.now(),
+                "The user " + user.getName() + " was disable!"
+        );
     }
 
     public Page<UserResponseDTO> findAll(int page, int numberOfUsers) {

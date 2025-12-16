@@ -1,6 +1,7 @@
 package com.lr.construcao.management.controller;
 
 import com.lr.construcao.management.dto.request.User.UserRequestDTO;
+import com.lr.construcao.management.dto.response.DeleteResponseDTO;
 import com.lr.construcao.management.dto.response.User.UserResponseDTO;
 import com.lr.construcao.management.service.UserService;
 import jakarta.validation.Valid;
@@ -39,6 +40,14 @@ public class UserController {
             @NonNull @RequestParam Long userId)
     {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(dto, userId));
+    }
+
+    @DeleteMapping(
+            value = "/disable",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<DeleteResponseDTO> disable(@NonNull @RequestParam Long userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.disable(userId));
     }
 
     @GetMapping(
