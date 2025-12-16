@@ -26,8 +26,11 @@ public class ClientController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ClientResponseDTO> create(@RequestBody @Valid ClientRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    public ResponseEntity<ClientResponseDTO> create(
+            @RequestBody @Valid ClientRequestDTO dto,
+            @NonNull @RequestParam Long userId
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto, userId));
     }
 
     @GetMapping(

@@ -38,4 +38,8 @@ public class Client {
     @Column(name = "update_at", nullable = false)
     private LocalDateTime updateAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
 }
