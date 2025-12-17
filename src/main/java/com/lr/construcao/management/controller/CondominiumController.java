@@ -38,4 +38,12 @@ public class CondominiumController {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(dto, condominiumId));
     }
 
+    @GetMapping(
+            value = "/findById",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<CondominiumDTO> findById(@NonNull @RequestParam Long condominiumId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findById(condominiumId));
+    }
+
 }

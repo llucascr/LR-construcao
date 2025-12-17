@@ -41,4 +41,11 @@ public class CondominiumService {
         return parseObject(condominumRepository.save(condominium), CondominiumDTO.class);
     }
 
+    public CondominiumDTO findById(Long condominiumId) {
+        Condominium condominium = condominumRepository.findById(condominiumId)
+                .orElseThrow(() -> new DataNotFoundException("condominium with id " + condominiumId + " not found"));
+
+        return parseObject(condominium, CondominiumDTO.class);
+    }
+
 }
