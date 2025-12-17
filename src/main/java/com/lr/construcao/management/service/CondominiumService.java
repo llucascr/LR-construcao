@@ -1,6 +1,7 @@
 package com.lr.construcao.management.service;
 
 import com.lr.construcao.management.dto.CondominiumDTO;
+import com.lr.construcao.management.exception.DataNotFoundException;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
 import com.lr.construcao.management.model.Condominium;
 import com.lr.construcao.management.repository.CondominumRepository;
@@ -25,6 +26,17 @@ public class CondominiumService {
                 .block(dto.getBlock())
                 .lot(dto.getLot())
                 .build();
+
+        return parseObject(condominumRepository.save(condominium), CondominiumDTO.class);
+    }
+
+    public CondominiumDTO update(CondominiumDTO dto, Long condominiumId) {
+        Condominium condominium = condominumRepository.findById(condominiumId)
+                .orElseThrow(() -> new DataNotFoundException("condominium with block " + dto.getBlock() +
+                        " and lot " + dto.getLot() + " not found"));
+
+        condominium.setBlock(dto.getBlock() != null ? dto.getBlock() : condominium.getBlock());
+        condominium.setLot(dto.getLot() != null ? dto.getLot() : condominium.getLot());
 
         return parseObject(condominumRepository.save(condominium), CondominiumDTO.class);
     }

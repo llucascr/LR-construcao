@@ -2,14 +2,13 @@ package com.lr.construcao.management.controller;
 
 import com.lr.construcao.management.dto.CondominiumDTO;
 import com.lr.construcao.management.service.CondominiumService;
+import jakarta.validation.Valid;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,8 +22,20 @@ public class CondominiumController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<CondominiumDTO> create(@RequestBody CondominiumDTO dto) {
+    public ResponseEntity<CondominiumDTO> create(@Valid @RequestBody CondominiumDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    }
+
+    @PutMapping(
+            value = "/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<CondominiumDTO> update(
+            @Valid @RequestBody CondominiumDTO dto,
+            @NonNull @RequestParam Long condominiumId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.update(dto, condominiumId));
     }
 
 }
