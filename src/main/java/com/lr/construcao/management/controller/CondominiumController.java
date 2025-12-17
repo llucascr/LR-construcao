@@ -1,6 +1,7 @@
 package com.lr.construcao.management.controller;
 
 import com.lr.construcao.management.dto.CondominiumDTO;
+import com.lr.construcao.management.dto.response.DeleteResponseDTO;
 import com.lr.construcao.management.service.CondominiumService;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -44,6 +45,14 @@ public class CondominiumController {
     )
     public ResponseEntity<CondominiumDTO> findById(@NonNull @RequestParam Long condominiumId) {
         return ResponseEntity.status(HttpStatus.OK).body(service.findById(condominiumId));
+    }
+
+    @DeleteMapping(
+            value = "/delete",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<DeleteResponseDTO> delete(@NonNull @RequestParam Long condominiumId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.delete(condominiumId));
     }
 
 }
