@@ -19,19 +19,19 @@ public class CondominiumService {
 
     private final CondominumRepository condominumRepository;
 
-    public CondominiumDTO create(CondominiumDTO dto) {
-        if (condominumRepository.findCondominiumByBlockAndLot(dto.getBlock(), dto.getLot()).isPresent()) {
-            throw new EntityAlreadyExistExcpetion("Condominium with block " + dto.getBlock() + " and lot " +
-                    dto.getLot() + " already Exist");
-        }
-
-        Condominium condominium = Condominium.builder()
-                .block(dto.getBlock())
-                .lot(dto.getLot())
-                .build();
-
-        return parseObject(condominumRepository.save(condominium), CondominiumDTO.class);
-    }
+//    public CondominiumDTO create(CondominiumDTO dto) {
+//        if (condominumRepository.findCondominiumByBlockAndLot(dto.getBlock(), dto.getLot()).isPresent()) {
+//            throw new EntityAlreadyExistExcpetion("Condominium with block " + dto.getBlock() + " and lot " +
+//                    dto.getLot() + " already Exist");
+//        }
+//
+//        Condominium condominium = Condominium.builder()
+//                .block(dto.getBlock())
+//                .lot(dto.getLot())
+//                .build();
+//
+//        return parseObject(condominumRepository.save(condominium), CondominiumDTO.class);
+//    }
 
     public CondominiumDTO update(CondominiumDTO dto, Long condominiumId) {
         Condominium condominium = condominumRepository.findById(condominiumId)

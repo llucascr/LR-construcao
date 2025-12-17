@@ -18,14 +18,14 @@ public class CondominiumController {
 
     private final CondominiumService service;
 
-    @PostMapping(
-            value = "/create",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<CondominiumDTO> create(@Valid @RequestBody CondominiumDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
-    }
+//    @PostMapping(
+//            value = "/create",
+//            consumes = MediaType.APPLICATION_JSON_VALUE,
+//            produces = MediaType.APPLICATION_JSON_VALUE
+//    )
+//    public ResponseEntity<CondominiumDTO> create(@Valid @RequestBody CondominiumDTO dto) {
+//        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+//    }
 
     @PutMapping(
             value = "/update",
