@@ -66,6 +66,31 @@ public class AddressService {
         return parseObject(addressRepository.save(address), AddressResponseDTO.class);
     }
 
+    public AddressResponseDTO update(AddressRequestDTO dto, Long addressId) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new DataNotFoundException("Address with id " + addressId + " not found"));
+
+        if (dto.getCondominiumBlock() != null || dto.getCondominiumLot() != null) {
+
+            Condominium condominium = Condominium.builder()
+                    .id(address.getCondominium().getId())
+                    .block(dto.getCondominiumBlock())
+                    .lot(dto.getCondominiumLot())
+                    .build();
+
+            address.setCondominium(condominumRepository.save(condominium));
+
+        }
+
+        address.setRoad(dto.getRoad() != null ? dto.getRoad() : address.getRoad());
+        address.setNumberAddress(dto.getNumberAddress() != null ? dto.getNumberAddress() : address.getNumberAddress());
+        address.setNeighborhood(dto.getNeighborhood() != null ? dto.getNeighborhood() : address.getNeighborhood());
+        address.setCity(dto.getCity() != null ? dto.getCity() : address.getCity());
+        address.setCep(dto.getCep() != null ? dto.getCep() : address.getCep());
+
+        return parseObject(addressRepository.save(address), AddressResponseDTO.class);
+    }
+
     private Condominium createCondominium(String block, String lot) {
         if (condominumRepository.findCondominiumByBlockAndLot(block, lot) != null) {
             return condominumRepository.findCondominiumByBlockAndLot(block, lot);
