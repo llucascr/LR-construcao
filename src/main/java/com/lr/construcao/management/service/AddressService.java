@@ -10,11 +10,16 @@ import com.lr.construcao.management.model.Condominium;
 import com.lr.construcao.management.repository.AddressRepository;
 import com.lr.construcao.management.repository.CondominumRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 import static com.lr.construcao.management.mapper.ObjectMapper.parseObject;
+import static com.lr.construcao.management.mapper.ObjectMapper.parsePageObjects;
 
 @RequiredArgsConstructor
 @Service
@@ -89,6 +94,13 @@ public class AddressService {
         address.setCep(dto.getCep() != null ? dto.getCep() : address.getCep());
 
         return parseObject(addressRepository.save(address), AddressResponseDTO.class);
+    }
+
+    public Page<AddressResponseDTO> listAll(int page, int numberOfAddress) {
+        Pageable pageable = PageRequest.of(page, numberOfAddress);
+        Page<Address> addresses = addressRepository.findAll(pageable);
+
+        return new PageImpl<>(parsePageObjects(addresses, AddressResponseDTO.class), pageable, addresses.getTotalElements());
     }
 
     private Condominium createCondominium(String block, String lot) {
