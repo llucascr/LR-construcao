@@ -2,6 +2,7 @@ package com.lr.construcao.management.service;
 
 import com.lr.construcao.management.dto.request.Address.AddressRequestDTO;
 import com.lr.construcao.management.dto.response.Address.AddressResponseDTO;
+import com.lr.construcao.management.dto.response.DeleteResponseDTO;
 import com.lr.construcao.management.exception.DataNotFoundException;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
 import com.lr.construcao.management.model.Address;
@@ -93,6 +94,18 @@ public class AddressService {
         address.setCep(dto.getCep() != null ? dto.getCep() : address.getCep());
 
         return parseObject(addressRepository.save(address), AddressResponseDTO.class);
+    }
+
+    public DeleteResponseDTO delete(Long addressId) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new DataNotFoundException("Address with id " + addressId + " not found"));
+
+        addressRepository.delete(address);
+
+        return new DeleteResponseDTO(
+                LocalDateTime.now(),
+                "The addres " + address.getRoad() + " was deleted"
+        );
     }
 
     public Page<AddressResponseDTO> findAll(int page, int numberOfAddress) {

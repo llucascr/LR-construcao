@@ -2,6 +2,7 @@ package com.lr.construcao.management.controller;
 
 import com.lr.construcao.management.dto.request.Address.AddressRequestDTO;
 import com.lr.construcao.management.dto.response.Address.AddressResponseDTO;
+import com.lr.construcao.management.dto.response.DeleteResponseDTO;
 import com.lr.construcao.management.service.AddressService;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -39,6 +40,14 @@ public class AddressController {
             @RequestParam Long addressId)
     {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(dto, addressId));
+    }
+
+    @DeleteMapping(
+            value = "/delete",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<DeleteResponseDTO> delete(@NonNull @RequestParam Long addressId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.delete(addressId));
     }
 
     @GetMapping(
