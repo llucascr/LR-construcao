@@ -1,6 +1,5 @@
 package com.lr.construcao.management.service;
 
-import com.lr.construcao.management.dto.CondominiumDTO;
 import com.lr.construcao.management.dto.request.Address.AddressRequestDTO;
 import com.lr.construcao.management.dto.response.Address.AddressResponseDTO;
 import com.lr.construcao.management.exception.DataNotFoundException;
@@ -96,11 +95,18 @@ public class AddressService {
         return parseObject(addressRepository.save(address), AddressResponseDTO.class);
     }
 
-    public Page<AddressResponseDTO> listAll(int page, int numberOfAddress) {
+    public Page<AddressResponseDTO> findAll(int page, int numberOfAddress) {
         Pageable pageable = PageRequest.of(page, numberOfAddress);
         Page<Address> addresses = addressRepository.findAll(pageable);
 
         return new PageImpl<>(parsePageObjects(addresses, AddressResponseDTO.class), pageable, addresses.getTotalElements());
+    }
+
+    public AddressResponseDTO findById(Long addressId) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new DataNotFoundException("Address with id " + addressId + " not found"));
+
+        return parseObject(address, AddressResponseDTO.class);
     }
 
     private Condominium createCondominium(String block, String lot) {

@@ -4,6 +4,7 @@ import com.lr.construcao.management.dto.request.Address.AddressRequestDTO;
 import com.lr.construcao.management.dto.response.Address.AddressResponseDTO;
 import com.lr.construcao.management.service.AddressService;
 import jakarta.validation.Valid;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,11 +45,19 @@ public class AddressController {
             value = "/findAll",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<List<AddressResponseDTO>> listAll(
+    public ResponseEntity<List<AddressResponseDTO>> findAll(
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int numberOfAddress
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.listAll(page, numberOfAddress).getContent());
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(page, numberOfAddress).getContent());
+    }
+
+    @GetMapping(
+            value = "/findById",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<AddressResponseDTO> findById(@NonNull @RequestParam Long addressId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findById(addressId));
     }
 
 }
