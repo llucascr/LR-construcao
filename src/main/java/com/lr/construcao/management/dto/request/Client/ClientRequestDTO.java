@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ClientRequestDTO {
 
     @Pattern(regexp = ".*\\S.*", message = "Empty fields")

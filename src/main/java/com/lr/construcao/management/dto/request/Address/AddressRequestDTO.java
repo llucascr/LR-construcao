@@ -1,15 +1,13 @@
 package com.lr.construcao.management.dto.request.Address;
 
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class AddressRequestDTO {
 
     @Pattern(regexp = ".*\\S.*", message = "Empty fields")
@@ -25,7 +23,7 @@ public class AddressRequestDTO {
     private String city;
 
     @Pattern(regexp = ".*\\S.*", message = "Empty fields")
-    private String Cep;
+    private String cep;
 
     @Pattern(regexp = ".*\\S.*", message = "Empty fields")
     private String condominiumBlock;

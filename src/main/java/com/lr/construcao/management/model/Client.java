@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,6 +23,9 @@ public class Client {
             allocationSize = 50
     )
     private Long id;
+
+    @OneToMany(mappedBy = "id")
+    private List<Build> builds;
 
     @Column(nullable = false, length = 150)
     private String name;

@@ -71,6 +71,50 @@ public class AddressService {
         return parseObject(addressRepository.save(address), AddressResponseDTO.class);
     }
 
+
+    public Address createRetunrAddress(AddressRequestDTO dto) {
+
+        long count = addressRepository.countByFullData(
+                dto.getRoad(),
+                dto.getNumberAddress(),
+                dto.getCondominiumBlock(),
+                dto.getCondominiumLot()
+        );
+
+        if (count > 0) {
+            throw new EntityAlreadyExistExcpetion("This address cannot be registered because it already belongs to a " +
+                    "Construction or Drilling ");
+        }
+
+        if (dto.getCondominiumBlock() == null || dto.getCondominiumLot() == null) {
+            Address address = Address.builder()
+                    .road(dto.getRoad())
+                    .numberAddress(dto.getNumberAddress())
+                    .neighborhood(dto.getNeighborhood())
+                    .city(dto.getCity())
+                    .cep(dto.getCep())
+                    .createAt(LocalDateTime.now())
+                    .updateAt(LocalDateTime.now())
+                    .build();
+
+            return address;
+        }
+
+        Address address = Address.builder()
+                .road(dto.getRoad())
+                .numberAddress(dto.getNumberAddress())
+                .neighborhood(dto.getNeighborhood())
+                .city(dto.getCity())
+                .cep(dto.getCep())
+                .condominium(createCondominium(dto.getCondominiumBlock(), dto.getCondominiumLot()))
+                .createAt(LocalDateTime.now())
+                .updateAt(LocalDateTime.now())
+                .build();
+
+
+        return address;
+    }
+
     public AddressResponseDTO update(AddressRequestDTO dto, Long addressId) {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new DataNotFoundException("Address with id " + addressId + " not found"));

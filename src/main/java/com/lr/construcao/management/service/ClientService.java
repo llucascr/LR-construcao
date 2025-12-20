@@ -53,6 +53,28 @@ public class ClientService {
         return parseObject(clientRepository.save(client), ClientResponseDTO.class);
     }
 
+    public Client createReturnClient(ClientRequestDTO dto, Long userId) {
+        if (clientRepository.findClientByEmail(dto.getEmail()).isPresent()) {
+            throw new EntityAlreadyExistExcpetion("Client with email " + dto.getEmail() + " Already exist");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Client wit id " + userId + " not found"));
+
+        if (user.getActive() == false) {
+            throw new UserDisableException("The user with id " + userId + " is desactivated and cannot register clients");
+        }
+
+        return Client.builder()
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .phone(dto.getPhone())
+                .createAt(LocalDateTime.now())
+                .updateAt(LocalDateTime.now())
+                .user(user)
+                .build();
+    }
+
     public ClientResponseDTO update(ClientRequestDTO dto, Long clientId) {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new DataNotFoundException("Client with id " + clientId + " not found"));
