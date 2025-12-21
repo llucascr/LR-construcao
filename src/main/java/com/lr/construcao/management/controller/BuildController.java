@@ -43,4 +43,16 @@ public class BuildController {
         return ResponseEntity.status(HttpStatus.OK).body(service.findAll(page, numberOfBuild).getContent());
     }
 
+    @GetMapping(
+            value = "/searchByName",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<List<BuildResponseDTO>> searchByName(
+            @RequestParam String name,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int numberOfBuild
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.searchByName(name, page, numberOfBuild).getContent());
+    }
+
 }

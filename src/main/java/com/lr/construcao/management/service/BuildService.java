@@ -82,4 +82,11 @@ public class BuildService {
         return new PageImpl<>(parsePageObjects(builds, BuildResponseDTO.class), pageable, builds.getTotalElements());
     }
 
+    public Page<BuildResponseDTO> searchByName(String name, int page, int numberOfBuild) {
+        Pageable pageable = PageRequest.of(page, numberOfBuild);
+        Page<Build> builds = buildRepository.searchByName(name, pageable);
+
+        return new PageImpl<>(parsePageObjects(builds, BuildResponseDTO.class), pageable, builds.getTotalElements());
+    }
+
 }
