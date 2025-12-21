@@ -16,11 +16,16 @@ import com.lr.construcao.management.repository.BuildRepository;
 import com.lr.construcao.management.repository.CondominumRepository;
 import com.lr.construcao.management.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 import static com.lr.construcao.management.mapper.ObjectMapper.parseObject;
+import static com.lr.construcao.management.mapper.ObjectMapper.parsePageObjects;
 
 @RequiredArgsConstructor
 @Service
@@ -32,6 +37,7 @@ public class BuildService {
     private final AddressService addressService;
     private final ClientService clientService;
 
+    // TODO: Revisar e contruir as verificações e execeções que podem existir
     public BuildResponseDTO create(BuildRequestDTO dto, Long userId) {
         if (buildRepository.findBuildsByName(dto.getName()).isPresent()) {
             throw new EntityAlreadyExistExcpetion("Build with name " + dto.getName() + " already exist");
@@ -67,6 +73,13 @@ public class BuildService {
                 .build();
 
         return parseObject(buildRepository.save(build), BuildResponseDTO.class);
+    }
+
+    public Page<BuildResponseDTO> findAll(int page, int numberOfBuild) {
+        Pageable pageable = PageRequest.of(page, numberOfBuild);
+        Page<Build> builds = buildRepository.findAll(pageable);
+
+        return new PageImpl<>(parsePageObjects(builds, BuildResponseDTO.class), pageable, builds.getTotalElements());
     }
 
 }

@@ -18,7 +18,7 @@ CREATE TABLE tb_build (
     CONSTRAINT fk_build_client_id FOREIGN KEY (client_id) REFERENCES tb_client (id),
     address_id NUMBER(19, 0) UNIQUE,
     CONSTRAINT fk_build_address_id FOREIGN KEY (address_id) REFERENCES tb_address (id),
-    user_id NUMBER(19, 0) UNIQUE,
+    user_id NUMBER(19, 0),
     CONSTRAINT fk_build_user_id FOREIGN KEY (user_id) REFERENCES tb_user (id),
 
     CONSTRAINT chk_build_status CHECK ( status IN ('EM_ESPERA', 'CONSTRUINDO', 'CONCLUIDO') )
