@@ -11,6 +11,10 @@ import com.lr.construcao.management.model.Drilling;
 import com.lr.construcao.management.repository.DrillingRepository;
 import com.lr.construcao.management.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -63,6 +67,13 @@ public class DrillingService {
                 .build();
 
         return parseObject(drillingRepository.save(drilling), DrillingResponseDTO.class);
+    }
+
+    public Page<DrillingResponseDTO> findAll(int page, int numberOfDrilling) {
+        Pageable pageable = PageRequest.of(page, numberOfDrilling);
+        Page<Drilling> drillings = drillingRepository.findAll(pageable);
+
+        return new PageImpl<>(parsePageObjects(drillings, DrillingResponseDTO.class), pageable, drillings.getTotalElements());
     }
 
 }
