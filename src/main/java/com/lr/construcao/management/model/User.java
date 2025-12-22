@@ -12,14 +12,14 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "tb_client")
-public class Client {
+@Table(name = "tb_user")
+public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "client_seq_gen")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq_gen")
     @SequenceGenerator(
-            name = "client_seq_gen",
-            sequenceName = "client_seq",
+            name = "user_seq_gen",
+            sequenceName = "user_seq",
             allocationSize = 50
     )
     private Long id;
@@ -33,17 +33,16 @@ public class Client {
     @Column(nullable = false, length = 254)
     private String email;
 
-    @Column(nullable = false, length = 50)
-    private String phone;
+    @Column(nullable = false, length = 255)
+    private String password;
+
+    @Column(nullable = false)
+    private Boolean active;
 
     @Column(name = "create_at", nullable = false, updatable = false)
     private LocalDateTime createAt;
 
     @Column(name = "update_at", nullable = false)
     private LocalDateTime updateAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 
 }

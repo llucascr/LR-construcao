@@ -5,8 +5,11 @@ import com.lr.construcao.management.dto.response.Client.ClientResponseDTO;
 import com.lr.construcao.management.dto.response.DeleteResponseDTO;
 import com.lr.construcao.management.exception.DataNotFoundException;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
+import com.lr.construcao.management.exception.UserDisableException;
 import com.lr.construcao.management.model.Client;
+import com.lr.construcao.management.model.User;
 import com.lr.construcao.management.repository.ClientRepository;
+import com.lr.construcao.management.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,10 +27,18 @@ import static com.lr.construcao.management.mapper.ObjectMapper.*;
 public class ClientService {
 
     private final ClientRepository clientRepository;
+    private final UserRepository userRepository;
 
-    public ClientResponseDTO create(ClientRequestDTO dto) {
+    public ClientResponseDTO create(ClientRequestDTO dto, Long userId) {
         if (clientRepository.findClientByEmail(dto.getEmail()).isPresent()) {
             throw new EntityAlreadyExistExcpetion("Client with email " + dto.getEmail() + " Already exist");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Client wit id " + userId + " not found"));
+
+        if (user.getActive() == false) {
+            throw new UserDisableException("The user with id " + userId + " is desactivated and cannot register clients");
         }
 
         Client client = Client.builder()
@@ -36,9 +47,32 @@ public class ClientService {
                 .phone(dto.getPhone())
                 .createAt(LocalDateTime.now())
                 .updateAt(LocalDateTime.now())
+                .user(user)
                 .build();
 
         return parseObject(clientRepository.save(client), ClientResponseDTO.class);
+    }
+
+    public Client createReturnClient(ClientRequestDTO dto, Long userId) {
+        if (clientRepository.findClientByEmail(dto.getEmail()).isPresent()) {
+            throw new EntityAlreadyExistExcpetion("Client with email " + dto.getEmail() + " Already exist");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Client wit id " + userId + " not found"));
+
+        if (user.getActive() == false) {
+            throw new UserDisableException("The user with id " + userId + " is desactivated and cannot register clients");
+        }
+
+        return Client.builder()
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .phone(dto.getPhone())
+                .createAt(LocalDateTime.now())
+                .updateAt(LocalDateTime.now())
+                .user(user)
+                .build();
     }
 
     public ClientResponseDTO update(ClientRequestDTO dto, Long clientId) {
@@ -61,7 +95,7 @@ public class ClientService {
         clientRepository.delete(client);
         return new DeleteResponseDTO(
                 LocalDateTime.now(),
-                "The user " + client.getName() + " was deleted"
+                "The user " + client.getName() + " was deleted!"
         );
     }
 
