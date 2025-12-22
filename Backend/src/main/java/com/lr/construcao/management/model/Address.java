@@ -46,7 +46,7 @@ public class Address {
     @Column(name = "update_at", nullable = false)
     private LocalDateTime updateAt;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "condominium_id", referencedColumnName = "id")
     private Condominium condominium;
 

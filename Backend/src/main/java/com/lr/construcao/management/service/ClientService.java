@@ -59,7 +59,7 @@ public class ClientService {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException("Client wit id " + userId + " not found"));
+                .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
 
         if (user.getActive() == false) {
             throw new UserDisableException("The user with id " + userId + " is desactivated and cannot register clients");
@@ -108,7 +108,7 @@ public class ClientService {
 
     public ClientResponseDTO findById(Long id) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Client wit id " + id + " not found"));
+                .orElseThrow(() -> new DataNotFoundException("Client with id " + id + " not found"));
 
         return parseObject(client, ClientResponseDTO.class);
     }
