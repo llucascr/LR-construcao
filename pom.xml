@@ -31,6 +31,12 @@
 	</properties>
 	<dependencies>
 
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>jakarta.el</artifactId>
+			<version>3.0.4</version>
+		</dependency>
+
 		<!-- Swagger / Open API -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
