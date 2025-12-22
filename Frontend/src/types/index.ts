@@ -1,0 +1,86 @@
+export type PaymentStatus = 'PAID' | 'NOT_PAID' | 'LATE';
+export type BuildStatus = 'WAITING' | 'EXECUTION' | 'FINISHED';
+
+export interface Page<T> {
+    content: T[];
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    number: number;
+    first: boolean;
+    last: boolean;
+    empty: boolean;
+}
+
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    password?: string; // Optional for frontend display
+    active: boolean;
+    create_at: string; // ISO Date string
+    update_at: string;
+}
+
+export interface Client {
+    id: number;
+    user_id: number; // Links to User who created/manages? Or the Client's user account? Based on schema "user_id (FK)", likely created_by.
+    name: string;
+    email: string;
+    phone: string;
+    create_at: string;
+    update_at: string;
+}
+
+export interface ClientInput {
+    name: string;
+    email: string;
+    phone: string;
+}
+
+export interface Condominium {
+    id: number;
+    block: string;
+    lot: string;
+}
+
+export interface Address {
+    id: number;
+    road: string;
+    number: string;
+    neighborhood: string;
+    city: string;
+    cep: string;
+    condominium_id?: number | null;
+    condominium?: Condominium; // Optional nested object if populated
+}
+
+export interface Drilling {
+    id: number;
+    client_id: number;
+    address_id: number;
+    user_id: number;
+    drill_size: string; // or number depending on unit. Schema says "drill_size".
+    depth: number;
+    drill_quantities: number;
+    price_meter: number;
+    invoice: boolean;
+    payments_status: PaymentStatus;
+    start_date: string;
+    end_date?: string;
+}
+
+export interface Build {
+    id: number;
+    client_id: number;
+    address_id: number;
+    user_id: number;
+    name: string;
+    size: number; // size in meters?
+    total_paid: number;
+    total_qtd_payments: number;
+    installments_value: number;
+    status: BuildStatus;
+    start_date: string;
+    end_date?: string;
+}
