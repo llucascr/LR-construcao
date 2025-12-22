@@ -6,6 +6,7 @@ import com.lr.construcao.management.dto.request.Build.BuildRequestDTO;
 import com.lr.construcao.management.dto.request.Client.ClientRequestDTO;
 import com.lr.construcao.management.dto.response.Address.AddressResponseDTO;
 import com.lr.construcao.management.dto.response.Build.BuildResponseDTO;
+import com.lr.construcao.management.dto.response.Build.StatusBuildResponseDTO;
 import com.lr.construcao.management.exception.DataNotFoundException;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
 import com.lr.construcao.management.model.Address;
@@ -38,7 +39,6 @@ public class BuildService {
     private final AddressService addressService;
     private final ClientService clientService;
 
-    // TODO: Revisar e contruir as verificações e execeções que podem existir
     public BuildResponseDTO create(BuildRequestDTO dto, Long userId) {
         if (buildRepository.findBuildsByName(dto.getName()).isPresent()) {
             throw new EntityAlreadyExistExcpetion("Build with name " + dto.getName() + " already exist");
@@ -115,6 +115,15 @@ public class BuildService {
         }
 
         return parseObject(buildRepository.save(build), BuildResponseDTO.class);
+    }
+
+    public StatusBuildResponseDTO changeStatus(StatusBuild status, Long buildId) {
+        Build build = buildRepository.findById(buildId)
+                .orElseThrow(() -> new DataNotFoundException("Build with id " + buildId + " not found"));
+
+        build.setStatus(status);
+
+        return parseObject(buildRepository.save(build), StatusBuildResponseDTO.class);
     }
 
     public Page<BuildResponseDTO> findAll(int page, int numberOfBuild) {

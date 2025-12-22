@@ -1,7 +1,9 @@
 package com.lr.construcao.management.controller;
 
+import com.lr.construcao.management.dto.enuns.StatusBuild;
 import com.lr.construcao.management.dto.request.Build.BuildRequestDTO;
 import com.lr.construcao.management.dto.response.Build.BuildResponseDTO;
+import com.lr.construcao.management.dto.response.Build.StatusBuildResponseDTO;
 import com.lr.construcao.management.service.BuildService;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -41,6 +43,15 @@ public class BuildController {
             @Valid @RequestBody BuildRequestDTO dto,
             @NonNull @RequestParam Long buildId) {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(dto, buildId));
+    }
+
+    @PutMapping(
+            value = "/changeStatus",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<StatusBuildResponseDTO> changeStatus(
+            @RequestParam StatusBuild statusBuild, @NonNull @RequestParam Long buildId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.changeStatus(statusBuild, buildId));
     }
 
     @GetMapping(
