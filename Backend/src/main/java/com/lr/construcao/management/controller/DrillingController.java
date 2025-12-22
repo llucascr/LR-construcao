@@ -32,6 +32,18 @@ public class DrillingController {
         return ResponseEntity.status(HttpStatus.OK).body(service.create(dto, userId));
     }
 
+    @PutMapping(
+            value = "/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<DrillingResponseDTO> update(
+            @Valid @RequestBody DrillingRequestDTO dto,
+            @NonNull @RequestParam Long drillingId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.update(dto, drillingId));
+    }
+
     @GetMapping(
             value = "/findAll",
             produces = MediaType.APPLICATION_JSON_VALUE

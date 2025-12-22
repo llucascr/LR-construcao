@@ -7,6 +7,9 @@ import com.lr.construcao.management.dto.request.Drilling.DrillingRequestDTO;
 import com.lr.construcao.management.dto.response.Drilling.DrillingResponseDTO;
 import com.lr.construcao.management.exception.DataNotFoundException;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
+import com.lr.construcao.management.model.Address;
+import com.lr.construcao.management.model.Client;
+import com.lr.construcao.management.model.Condominium;
 import com.lr.construcao.management.model.Drilling;
 import com.lr.construcao.management.repository.DrillingRepository;
 import com.lr.construcao.management.repository.UserRepository;
@@ -42,7 +45,7 @@ public class DrillingService {
                 .depth(dto.getDepth())
                 .drillQuatities(dto.getDrillQuatities())
                 .priceMeter(dto.getPriceMeter())
-                .invoice(dto.isInvoice())
+                .invoice(dto.getInvoice())
                 .paymentsStatus(PaymentsStatus.NAO_PAGO)
                 .startDate(dto.getStartDate())
                 .endDate(dto.getEndDate())
@@ -65,6 +68,46 @@ public class DrillingService {
                 .user(userRepository.findById(userId)
                         .orElseThrow(() -> new DataNotFoundException("User with id " + userId + "not found")))
                 .build();
+
+        return parseObject(drillingRepository.save(drilling), DrillingResponseDTO.class);
+    }
+
+    public DrillingResponseDTO update(DrillingRequestDTO dto, Long drillingId) {
+        Drilling drilling = drillingRepository.findById(drillingId)
+                .orElseThrow(() -> new DataNotFoundException("Drilling with id " + drillingId + " not found"));
+
+        drilling.setName(dto.getName() != null ? dto.getName() : drilling.getName());
+        drilling.setDrillSize(dto.getDrillSize() != null ? dto.getDrillSize() : drilling.getDrillSize());
+        drilling.setDepth(dto.getDepth() != null ? dto.getDepth() : drilling.getDepth());
+        drilling.setDrillQuatities(dto.getDrillQuatities() != null ? dto.getDrillQuatities() : drilling.getDrillQuatities());
+        drilling.setPriceMeter(dto.getPriceMeter() != null ? dto.getPriceMeter() : drilling.getPriceMeter());
+        drilling.setInvoice(dto.getInvoice() != null ? dto.getInvoice() : drilling.getInvoice());
+        drilling.setStartDate(dto.getStartDate() != null ? dto.getStartDate() : drilling.getStartDate());
+        drilling.setEndDate(dto.getEndDate() != null ? dto.getEndDate() : drilling.getEndDate());
+
+        if (drilling.getAddress() != null) {
+            Address address = drilling.getAddress();
+            address.setRoad(dto.getRoad() != null ? dto.getRoad() : address.getRoad());
+            address.setNumberAddress(dto.getNumberAddress() != null ? dto.getNumberAddress() : address.getNumberAddress());
+            address.setNeighborhood(dto.getNeighborhood() != null ? dto.getNeighborhood() : address.getNeighborhood());
+            address.setCity(dto.getCity() != null ? dto.getCity() : address.getCity());
+            address.setCep(dto.getCep() != null ? dto.getCep() : address.getCep());
+
+            if (dto.getCondominiumBlock() != null || dto.getCondominiumLot() != null) {
+                Condominium condominium = address.getCondominium();
+                condominium.setBlock(dto.getCondominiumBlock());
+                condominium.setLot(dto.getCondominiumLot());
+
+                address.setCondominium(condominium);
+            }
+        }
+
+        if (drilling.getClient() != null) {
+            Client client = drilling.getClient();
+            client.setName(dto.getClientName() != null ? dto.getClientName() : client.getName());
+            client.setEmail(dto.getClientemail() != null ? dto.getClientemail() : client.getEmail());
+            client.setPhone(dto.getClientPhone() != null ? dto.getClientPhone() : client.getPhone());
+        }
 
         return parseObject(drillingRepository.save(drilling), DrillingResponseDTO.class);
     }

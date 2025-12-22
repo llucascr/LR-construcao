@@ -32,7 +32,7 @@ public class DrillingRequestDTO {
 
     private BigDecimal priceMeter;
 
-    private boolean invoice;
+    private Boolean invoice;
 
     private PaymentsStatus paymentsStatus;
 

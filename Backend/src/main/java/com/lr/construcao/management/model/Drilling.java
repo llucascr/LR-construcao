@@ -55,7 +55,7 @@ public class Drilling {
     private BigDecimal priceMeter;
 
     @Column(name = "invoice", nullable = false)
-    private boolean invoice;
+    private Boolean invoice;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payments_status", nullable = false, length = 30)
