@@ -32,6 +32,17 @@ public class BuildController {
         return ResponseEntity.status(HttpStatus.OK).body(service.create(dto, userId));
     }
 
+    @PutMapping(
+            value = "/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<BuildResponseDTO> update(
+            @Valid @RequestBody BuildRequestDTO dto,
+            @NonNull @RequestParam Long buildId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.update(dto, buildId));
+    }
+
     @GetMapping(
             value = "/findAll",
             produces = MediaType.APPLICATION_JSON_VALUE

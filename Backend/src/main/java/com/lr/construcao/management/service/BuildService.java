@@ -11,6 +11,7 @@ import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
 import com.lr.construcao.management.model.Address;
 import com.lr.construcao.management.model.Build;
 import com.lr.construcao.management.model.Client;
+import com.lr.construcao.management.model.Condominium;
 import com.lr.construcao.management.repository.AddressRepository;
 import com.lr.construcao.management.repository.BuildRepository;
 import com.lr.construcao.management.repository.CondominumRepository;
@@ -71,6 +72,47 @@ public class BuildService {
                 .user(userRepository.findById(userId)
                         .orElseThrow(() -> new DataNotFoundException("User with id " + userId + "not found")))
                 .build();
+
+        return parseObject(buildRepository.save(build), BuildResponseDTO.class);
+    }
+
+    public BuildResponseDTO update(BuildRequestDTO dto, Long buildId) {
+        Build build = buildRepository.findById(buildId)
+                .orElseThrow(() -> new DataNotFoundException("Build with id " + buildId + " not found"));
+
+        build.setName(dto.getName() != null ? dto.getName() : build.getName());
+        build.setBuildSize(dto.getBuildSize() != null ? dto.getBuildSize() : build.getBuildSize());
+        build.setTotalPaid(dto.getTotalPaid() != null ? dto.getTotalPaid() : build.getTotalPaid());
+        build.setQtdTotalPayments(dto.getQtdTotalPayments() != null ? dto.getQtdTotalPayments() : build.getQtdTotalPayments());
+        build.setPaymentsValue(dto.getPaymentsValue() != null ? dto.getPaymentsValue() : build.getPaymentsValue());
+        build.setStartDate(dto.getStartDate() != null ? dto.getStartDate() : build.getStartDate());
+        build.setEndDate(dto.getEndDate() != null ? dto.getEndDate() : build.getEndDate());
+
+        build.setUpdateAt(LocalDateTime.now());
+
+        if (build.getAddress() != null) {
+            Address address = build.getAddress();
+            address.setRoad(dto.getRoad() != null ? dto.getRoad() : address.getRoad());
+            address.setNumberAddress(dto.getNumberAddress() != null ? dto.getNumberAddress() : address.getNumberAddress());
+            address.setNeighborhood(dto.getNeighborhood() != null ? dto.getNeighborhood() : address.getNeighborhood());
+            address.setCity(dto.getCity() != null ? dto.getCity() : address.getCity());
+            address.setCep(dto.getCep() != null ? dto.getCep() : address.getCep());
+
+            if (dto.getCondominiumBlock() != null || dto.getCondominiumLot() != null) {
+                Condominium condominium = address.getCondominium();
+                condominium.setBlock(dto.getCondominiumBlock());
+                condominium.setLot(dto.getCondominiumLot());
+
+                address.setCondominium(condominium);
+            }
+        }
+
+        if (build.getClient() != null) {
+            Client client = build.getClient();
+            client.setName(dto.getClientName() != null ? dto.getClientName() : client.getName());
+            client.setEmail(dto.getClientemail() != null ? dto.getClientemail() : client.getEmail());
+            client.setPhone(dto.getClientPhone() != null ? dto.getClientPhone() : client.getPhone());
+        }
 
         return parseObject(buildRepository.save(build), BuildResponseDTO.class);
     }
