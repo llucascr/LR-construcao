@@ -5,6 +5,7 @@ import com.lr.construcao.management.dto.request.Address.AddressRequestDTO;
 import com.lr.construcao.management.dto.request.Client.ClientRequestDTO;
 import com.lr.construcao.management.dto.request.Drilling.DrillingRequestDTO;
 import com.lr.construcao.management.dto.response.Drilling.DrillingResponseDTO;
+import com.lr.construcao.management.dto.response.Drilling.PaymentsStatusResponseDTO;
 import com.lr.construcao.management.exception.DataNotFoundException;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
 import com.lr.construcao.management.model.Address;
@@ -110,6 +111,14 @@ public class DrillingService {
         }
 
         return parseObject(drillingRepository.save(drilling), DrillingResponseDTO.class);
+    }
+
+    public PaymentsStatusResponseDTO changeStatus(PaymentsStatus status, Long drillingId) {
+        Drilling drilling = drillingRepository.findById(drillingId)
+                .orElseThrow(() -> new DataNotFoundException("Drilling with id " + drillingId + " not found"));
+
+        drilling.setPaymentsStatus(status);
+        return parseObject(drillingRepository.save(drilling), PaymentsStatusResponseDTO.class);
     }
 
     public Page<DrillingResponseDTO> findAll(int page, int numberOfDrilling) {
