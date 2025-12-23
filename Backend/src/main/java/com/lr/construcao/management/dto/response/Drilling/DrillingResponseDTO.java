@@ -34,6 +34,8 @@ public class DrillingResponseDTO {
 
     private PaymentsStatus paymentsStatus;
 
+    private BigDecimal totalValue;
+
     private LocalDate startDate;
 
     private LocalDate endDate;
@@ -47,5 +49,15 @@ public class DrillingResponseDTO {
     private ClientResponseDTO client;
 
     private UserResponseDTO user;
+
+    public BigDecimal getTotalValue() {
+        if (drillQuatities == null || depth == null || priceMeter == null) {
+            return BigDecimal.ZERO; // Ou retorne null, dependendo da sua regra de negócio
+        }
+
+        BigInteger totalDepth = drillQuatities.multiply(depth);
+
+        return new BigDecimal(totalDepth).multiply(priceMeter);
+    }
 
 }
