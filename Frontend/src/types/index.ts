@@ -56,18 +56,21 @@ export interface Address {
 }
 
 export interface Drilling {
-    id: number;
-    client_id: number;
-    address_id: number;
-    user_id: number;
-    drill_size: string; // or number depending on unit. Schema says "drill_size".
+    name: string;
+    drillSize: number;
     depth: number;
-    drill_quantities: number;
-    price_meter: number;
+    drillQuatities: number; // Backend typo: drillQuatities
+    priceMeter: number;
     invoice: boolean;
-    payments_status: PaymentStatus;
-    start_date: string;
-    end_date?: string;
+    paymentsStatus: PaymentStatus;
+    totalValue: number;
+    startDate: string;
+    endDate?: string;
+    createAt: string;
+    updateAt: string;
+    address: Address;
+    client: Client;
+    user: User;
 }
 
 export interface Build {
@@ -83,4 +86,30 @@ export interface Build {
     status: BuildStatus;
     start_date: string;
     end_date?: string;
+}
+
+export interface DrillingInput {
+    name: string;
+    drillSize: number;
+    depth: number;
+    drillQuatities: number;
+    priceMeter: number;
+    invoice: boolean;
+    // paymentsStatus default is used in backend
+    startDate: string;
+    endDate: string;
+
+    // Address fields
+    road: string;
+    numberAddress: string;
+    neighborhood: string;
+    city: string;
+    Cep: string;
+    condominiumBlock: string;
+    condominiumLot: string;
+
+    // Client fields
+    ClientName: string;
+    Clientemail: string;
+    ClientPhone: string;
 }
