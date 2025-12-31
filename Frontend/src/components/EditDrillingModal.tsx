@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, X, Plus } from 'lucide-react';
+import { Loader2, X, Save } from 'lucide-react';
 import { drillingService } from '../services/drillingService';
-import type { DrillingInput } from '../types';
+import type { DrillingInput, Drilling, PaymentStatus } from '../types';
 
-interface CreateDrillingModalProps {
+interface EditDrillingModalProps {
     isOpen: boolean;
     onClose: () => void;
+    drilling: Drilling | null; // The item to edit
 }
 
 const initialFormState: DrillingInput = {
@@ -30,30 +31,98 @@ const initialFormState: DrillingInput = {
     ClientPhone: '',
 };
 
-export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProps) => {
-    // Hardcoded user ID for testing/demo as backend doesn't easily expose ID
-    // In production, this should come from AuthContext
-    const TEST_USER_ID = 1;
-
+export const EditDrillingModal = ({ isOpen, onClose, drilling }: EditDrillingModalProps) => {
     const [formData, setFormData] = useState<DrillingInput>(initialFormState);
     const [error, setError] = useState<string | null>(null);
 
     const queryClient = useQueryClient();
 
+    // Effect to populate form when drilling prop changes
+    useEffect(() => {
+        if (drilling) {
+            console.log('Editing Drilling Object (JSON):', JSON.stringify(drilling, null, 2));
+
+            // Attempt to find ID if standard 'id' is missing
+            const inferredId = drilling.id || (drilling as any).drillingId;
+            if (!inferredId) {
+                console.error('Available keys on drilling object:', Object.keys(drilling));
+            }
+
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setFormData({
+                name: drilling.name || '',
+                drillSize: drilling.drillSize || 0,
+                depth: drilling.depth || 0,
+                drillQuatities: drilling.drillQuatities || 0,
+                priceMeter: drilling.priceMeter || 0,
+                invoice: drilling.invoice || false,
+                startDate: drilling.startDate ? drilling.startDate.split('T')[0] : '',
+                endDate: drilling.endDate ? drilling.endDate.split('T')[0] : '',
+                road: drilling.address?.road || '',
+                // Try alternate field names for number and cep
+                numberAddress: drilling.address?.number || (drilling.address as any)?.numberAddress || '',
+                neighborhood: drilling.address?.neighborhood || '',
+                city: drilling.address?.city || '',
+                Cep: drilling.address?.cep || (drilling.address as any)?.Cep || '',
+                condominiumBlock: drilling.address?.condominium?.block || '',
+                condominiumLot: drilling.address?.condominium?.lot || '',
+                ClientName: drilling.client?.name || '',
+                Clientemail: drilling.client?.email || '',
+                ClientPhone: drilling.client?.phone || '',
+            });
+        }
+    }, [drilling]);
+
     const mutation = useMutation({
-        mutationFn: (data: DrillingInput) => drillingService.create(data, TEST_USER_ID),
+        mutationFn: (data: DrillingInput) => {
+            const drillingId = drilling?.id || (drilling as any)?.drillingId;
+            if (!drillingId) {
+                throw new Error("Drilling ID is missing");
+            }
+            return drillingService.update(data, drillingId);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['drillings'] });
-            setFormData(initialFormState);
+            onClose();
+        },
+        onError: (err: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+            console.error('Failed to update drilling:', err);
+            setError(err.response?.data?.message || err.message || 'Failed to update service');
+        },
+    });
+
+    const statusMutation = useMutation({
+        mutationFn: ({ status, id }: { status: PaymentStatus, id: number }) => drillingService.changeStatus(status, id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['drillings'] });
+            // We can optionally close the modal or just show success
+            // onClose(); 
+            // But usually for status change inside edit, we might want to stay open or strictly reflect the change.
+            // Since the prop 'drilling' comes from parent which gets data from query, invalidating query should update props?
+            // Actually 'drilling' prop is passed from selected state in parent. 
+            // Parent needs to refetch to update its 'selectedDrilling' or we need to update local state?
+            // The parent passes 'editingDrilling'. If we invalidate 'drillings', the parent list updates.
+            // But 'editingDrilling' state in parent might be stale unless we update it or close modal.
+            // Let's close modal for now to be safe, or we accept it updates the list behind.
+            // User asked for "clicar me de uma lista...".
             onClose();
         },
         onError: (err: any) => {
-            console.error('Failed to create drilling:', err);
-            console.log('Error Response Data:', err.response?.data);
-            console.log('Error Response Status:', err.response?.status);
-            setError(err.response?.data?.message || err.message || 'Failed to create service');
-        },
+            console.error('Failed to change status:', err);
+            setError('Failed to change status');
+        }
     });
+
+    const handleStatusChange = (status: PaymentStatus) => {
+        if (drilling) {
+            const drillingId = drilling.id || (drilling as any).drillingId;
+            if (drillingId) {
+                statusMutation.mutate({ status, id: drillingId });
+            } else {
+                setError("Cannot change status: Drilling ID not found.");
+            }
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -77,7 +146,15 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-        mutation.mutate(formData);
+        if (drilling) {
+            const drillingId = drilling.id || (drilling as any).drillingId;
+            if (!drillingId) {
+                setError("Could not find ID for this drilling service. Check console for available fields.");
+                return;
+            }
+
+            mutation.mutate(formData);
+        }
     };
 
     if (!isOpen) return null;
@@ -92,7 +169,7 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                     <X className="h-5 w-5" />
                 </button>
 
-                <h2 className="mb-6 text-xl font-bold text-gray-900">Novo Serviço de Perfuração</h2>
+                <h2 className="mb-6 text-xl font-bold text-gray-900">Editar Serviço de Perfuração</h2>
 
                 {error && (
                     <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-500">
@@ -101,6 +178,7 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Reuse form fields from Creation Modal */}
                     {/* Basic Info */}
                     <div className="grid gap-4 md:grid-cols-2">
                         <div>
@@ -119,12 +197,12 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                             <input
                                 type="checkbox"
                                 name="invoice"
-                                id="invoice"
+                                id="edit-invoice"
                                 checked={formData.invoice}
                                 onChange={handleChange}
                                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                             />
-                            <label htmlFor="invoice" className="text-sm font-medium text-gray-700">Emitir Nota Fiscal</label>
+                            <label htmlFor="edit-invoice" className="text-sm font-medium text-gray-700">Emitir Nota Fiscal</label>
                         </div>
                     </div>
 
@@ -191,6 +269,28 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                                 onChange={handleChange}
                                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             />
+                        </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">Status Financeiro</h3>
+                        <div className="flex gap-4">
+                            {(['PAGO', 'ATRASADO', 'NAO_PAGO'] as const).map((status) => (
+                                <button
+                                    key={status}
+                                    type="button"
+                                    onClick={() => handleStatusChange(status)}
+                                    className={`rounded-full px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 ${(drilling?.paymentsStatus === status)
+                                        ? 'ring-2 ring-offset-2'
+                                        : 'opacity-70 hover:opacity-100'
+                                        } ${status === 'PAGO' ? 'bg-green-100 text-green-800 ring-green-500' :
+                                            status === 'ATRASADO' ? 'bg-red-100 text-red-800 ring-red-500' :
+                                                'bg-yellow-100 text-yellow-800 ring-yellow-500'
+                                        }`}
+                                >
+                                    {status.replace('_', ' ')}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
@@ -314,6 +414,7 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
 
                     </div>
 
+
                     <div className="flex justify-end space-x-3 pt-6">
                         <button
                             type="button"
@@ -330,9 +431,9 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                             {mutation.isPending ? (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : (
-                                <Plus className="mr-2 h-4 w-4" />
+                                <Save className="mr-2 h-4 w-4" />
                             )}
-                            Criar Serviço
+                            Salvar Alterações
                         </button>
                     </div>
                 </form>

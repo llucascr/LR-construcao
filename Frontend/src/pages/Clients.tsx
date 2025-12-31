@@ -32,12 +32,21 @@ export const Clients = () => {
             ]);
 
             console.log('API Response (Clients):', clientsResponse);
-            if (clientsResponse.length > 0) {
-                console.log('First Client Structure:', clientsResponse[0]);
-                console.log('Client Keys:', Object.keys(clientsResponse[0]));
+
+            let clientList: Client[] = [];
+            if (Array.isArray(clientsResponse)) {
+                clientList = clientsResponse;
+            } else if (clientsResponse && (clientsResponse as any).content) {
+                clientList = (clientsResponse as any).content;
             }
 
-            setClients(clientsResponse);
+            console.log('Processed Client List:', clientList);
+
+            if (clientList.length > 0) {
+                console.log('First Client Structure:', clientList[0]);
+            }
+
+            setClients(clientList);
 
             const userList = (usersResponse as any).content ? (usersResponse as any).content : usersResponse;
 
@@ -108,8 +117,7 @@ export const Clients = () => {
                 }
             } else {
                 console.log('Mode: CREATE');
-                // Hardcoded userId = 1 for now as per plan
-                await clientService.create(formData, 1);
+                await clientService.create(formData);
             }
 
             // Close modal, reset form, and refresh list

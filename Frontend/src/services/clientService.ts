@@ -1,9 +1,9 @@
 import { api } from './api';
-import type { Client, ClientInput } from '../types';
+import type { Client, ClientInput, Page } from '../types';
 
 export const clientService = {
-    getClients: async (page = 0, size = 10): Promise<Client[]> => {
-        const response = await api.get<Client[]>(`/client/findAll`, {
+    getClients: async (page = 0, size = 10): Promise<Page<Client>> => {
+        const response = await api.get<Page<Client>>(`/client/findAll`, {
             params: {
                 page,
                 numberOfClients: size
@@ -12,12 +12,8 @@ export const clientService = {
         return response.data;
     },
 
-    create: async (client: ClientInput, userId: number): Promise<Client> => {
-        const response = await api.post<Client>('/client/create', client, {
-            params: {
-                userId
-            }
-        });
+    create: async (client: ClientInput): Promise<Client> => {
+        const response = await api.post<Client>('/client/create', client);
         return response.data;
     },
 

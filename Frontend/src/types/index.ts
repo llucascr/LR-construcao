@@ -1,5 +1,20 @@
-export type PaymentStatus = 'PAID' | 'NOT_PAID' | 'LATE';
+export type PaymentStatus = 'PAGO' | 'NAO_PAGO' | 'ATRASADO';
 export type BuildStatus = 'WAITING' | 'EXECUTION' | 'FINISHED';
+
+export interface AccountCredentialsDTO {
+    username?: string; // or email, based on your backend. The prompt says "credentials", typically username/email + password
+    email?: string; // Supports both if needed, but usually one is the ID
+    password?: string;
+}
+
+export interface TokenDTO {
+    email: string;
+    authenticated: boolean;
+    created: string; // Date
+    expiration: string; // Date
+    accessToken: string;
+    refreshToken: string;
+}
 
 export interface Page<T> {
     content: T[];
@@ -56,6 +71,7 @@ export interface Address {
 }
 
 export interface Drilling {
+    id?: number;
     name: string;
     drillSize: number;
     depth: number;

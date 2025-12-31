@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Home, Users, Hammer, HardHat, Settings, UserCog, Menu } from 'lucide-react';
+import { Home, Users, Hammer, HardHat, Settings, UserCog, Menu, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const MainLayout = () => {
     const location = useLocation();
@@ -12,6 +13,8 @@ const MainLayout = () => {
         { path: '/users', label: 'Users', icon: UserCog },
         { path: '/settings', label: 'Settings', icon: Settings },
     ];
+
+    const { logout, token } = useAuth();
 
     return (
         <div className="min-h-screen bg-gray-100 flex">
@@ -41,14 +44,25 @@ const MainLayout = () => {
                     })}
                 </nav>
                 <div className="p-4 border-t">
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                            <UserCog size={20} className="text-gray-500" />
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                <UserCog size={20} className="text-gray-500" />
+                            </div>
+                            <div className="overflow-hidden">
+                                <p className="text-sm font-medium truncate">Admin User</p>
+                                <p className="text-xs text-gray-500 truncate max-w-[120px]" title={token?.email}>
+                                    {token?.email || 'admin@lr.com'}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm font-medium">Admin User</p>
-                            <p className="text-xs text-gray-500">admin@lr.com</p>
-                        </div>
+                        <button
+                            onClick={logout}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Sair"
+                        >
+                            <LogOut size={20} />
+                        </button>
                     </div>
                 </div>
             </aside>

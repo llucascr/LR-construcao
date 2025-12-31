@@ -20,6 +20,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class DrillingResponseDTO {
 
+    private Long id;
+
     private String name;
 
     private BigDecimal drillSize;

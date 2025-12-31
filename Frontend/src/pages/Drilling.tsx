@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { drillingService } from '../services/drillingService';
-import { Loader2, AlertCircle, FileText } from 'lucide-react';
+import { Loader2, AlertCircle, FileText, Search } from 'lucide-react';
 import { CreateDrillingModal } from '../components/CreateDrillingModal';
+import { EditDrillingModal } from '../components/EditDrillingModal';
+import { DrillingDetailsModal } from '../components/DrillingDetailsModal';
+import type { Drilling as DrillingType } from '../types';
 
 export const Drilling = () => {
     const [page] = useState(0);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [editingDrilling, setEditingDrilling] = useState<DrillingType | null>(null);
+    const [selectedDrilling, setSelectedDrilling] = useState<DrillingType | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const pageSize = 10;
 
     const { data: drillings, isLoading, isError, error } = useQuery({
@@ -14,9 +20,28 @@ export const Drilling = () => {
         queryFn: () => drillingService.getAll(page, pageSize),
     });
 
-    console.log('Drilling data:', drillings);
+    if (isError) {
+        console.error('Error loading drillings:', error);
+    }
 
-    const safeContent = drillings || [];
+    // Handle both array and Page response structures
+    const allDrillings: DrillingType[] = Array.isArray(drillings) ? drillings : (drillings?.content || []);
+
+    const safeContent = allDrillings.filter(drill => {
+        if (!searchTerm) return true;
+        const lowerTerm = searchTerm.toLowerCase();
+
+        const searchFields = [
+            drill.name,
+            drill.address?.road,
+            drill.address?.neighborhood,
+            drill.address?.city,
+            drill.address?.condominium?.block,
+            drill.address?.condominium?.lot
+        ];
+
+        return searchFields.some(field => field && field.toLowerCase().includes(lowerTerm));
+    });
 
 
     const formatCurrency = (value: number) => {
@@ -28,6 +53,10 @@ export const Drilling = () => {
 
     const formatNumber = (value: number) => {
         return new Intl.NumberFormat('pt-BR').format(value);
+    };
+
+    const handleEdit = (drilling: DrillingType) => {
+        setEditingDrilling(drilling);
     };
 
     if (isLoading) {
@@ -50,14 +79,29 @@ export const Drilling = () => {
 
     return (
         <div className="space-y-6 p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Drilling Services</h1>
                     <p className="text-sm text-gray-500">Gerencie todas as perfurações e serviços</p>
                 </div>
+
+                {/* Search Bar */}
+                <div className="relative flex-1 max-w-md mx-4">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <Search className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Pesquisar..."
+                        className="block w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-gray-500 focus:border-blue-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 whitespace-nowrap"
                 >
                     Novo Serviço
                 </button>
@@ -103,7 +147,21 @@ export const Drilling = () => {
                                 safeContent.map((item, index) => (
                                     <tr key={index} className="hover:bg-gray-50">
                                         <td className="whitespace-nowrap px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900">{item.name || 'Sem nome'}</div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => setSelectedDrilling(item)}
+                                                    className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline focus:outline-none"
+                                                >
+                                                    {item.name || 'Sem nome'}
+                                                </button>
+                                                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${item.paymentsStatus === 'PAGO' ? 'bg-green-100 text-green-800' :
+                                                    item.paymentsStatus === 'ATRASADO' ? 'bg-red-100 text-red-800' :
+                                                        'bg-yellow-100 text-yellow-800'
+                                                    }`}>
+                                                    {item.paymentsStatus === 'PAGO' ? 'PAGO' :
+                                                        item.paymentsStatus === 'ATRASADO' ? 'ATRASADO' : 'NÃO PAGO'}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                             {/* Assuming size is in some unit, keeping it simple */}
@@ -122,9 +180,12 @@ export const Drilling = () => {
                                             {formatCurrency(item.totalValue)}
                                         </td>
                                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                                            <a href="#" className="text-blue-600 hover:text-blue-900">
+                                            <button
+                                                onClick={() => handleEdit(item)}
+                                                className="text-blue-600 hover:text-blue-900 focus:outline-none"
+                                            >
                                                 Editar
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -140,6 +201,16 @@ export const Drilling = () => {
             </div>
 
             <CreateDrillingModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+            <EditDrillingModal
+                isOpen={!!editingDrilling}
+                onClose={() => setEditingDrilling(null)}
+                drilling={editingDrilling}
+            />
+            <DrillingDetailsModal
+                isOpen={!!selectedDrilling}
+                onClose={() => setSelectedDrilling(null)}
+                drilling={selectedDrilling}
+            />
         </div>
     );
 };
