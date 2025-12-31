@@ -1,5 +1,10 @@
 cors:
   originPatterns: http://localhost:8080,http://localhost:5173
+security:
+  jwt:
+    token:
+      secret-key: 53cr37
+      expire-lenght: 3600000
 spring:
   application:
     name: management
@@ -19,3 +24,9 @@ spring:
 logging:
   level:
     root: info
+spring-doc:
+  paths-to-match:
+    - /api/v1/**
+    - /auth/**
+  swagger-ui:
+    use-root-path: true

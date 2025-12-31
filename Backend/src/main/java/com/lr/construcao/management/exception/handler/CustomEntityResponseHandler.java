@@ -1,9 +1,6 @@
 package com.lr.construcao.management.exception.handler;
 
-import com.lr.construcao.management.exception.DataNotFoundException;
-import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
-import com.lr.construcao.management.exception.ExceptionResponse;
-import com.lr.construcao.management.exception.UserDisableException;
+import com.lr.construcao.management.exception.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -81,6 +78,19 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
                 request.getDescription(false)
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidJwtAuthenticationException.class)
+    public final ResponseEntity<ExceptionResponse> hadleInvalidJwtAuthenticationException(
+            InvalidJwtAuthenticationException ex,
+            WebRequest request)
+    {
+        ExceptionResponse response = new ExceptionResponse(
+                LocalDateTime.now(),
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
 }

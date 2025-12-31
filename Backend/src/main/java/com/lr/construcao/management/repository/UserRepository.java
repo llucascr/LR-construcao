@@ -20,4 +20,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     """)
     void disable(@Param("userId") Long userId);
 
+    @Query("""
+    SELECT u FROM User u WHERE u.email = :email
+    """)
+    User findByEmail(@Param("email") String email);
+
 }
