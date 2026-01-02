@@ -7,6 +7,7 @@ import com.lr.construcao.management.dto.request.Client.ClientRequestDTO;
 import com.lr.construcao.management.dto.response.Address.AddressResponseDTO;
 import com.lr.construcao.management.dto.response.Build.BuildResponseDTO;
 import com.lr.construcao.management.dto.response.Build.StatusBuildResponseDTO;
+import com.lr.construcao.management.dto.response.Build.TotalPaidResponseDTO;
 import com.lr.construcao.management.exception.DataNotFoundException;
 import com.lr.construcao.management.exception.EntityAlreadyExistExcpetion;
 import com.lr.construcao.management.model.Address;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static com.lr.construcao.management.mapper.ObjectMapper.parseObject;
@@ -47,9 +49,8 @@ public class BuildService {
         Build build = Build.builder()
                 .name(dto.getName())
                 .buildSize(dto.getBuildSize())
-                .totalPaid(dto.getTotalPaid())
-                .qtdTotalPayments(dto.getQtdTotalPayments())
-                .paymentsValue(dto.getPaymentsValue())
+                .totalPaid(BigDecimal.valueOf(0))
+                .buildCost(dto.getBuildCost())
                 .status(StatusBuild.EM_ESPERA)
                 .startDate(dto.getStartDate())
                 .endDate(dto.getEndDate())
@@ -83,8 +84,7 @@ public class BuildService {
         build.setName(dto.getName() != null ? dto.getName() : build.getName());
         build.setBuildSize(dto.getBuildSize() != null ? dto.getBuildSize() : build.getBuildSize());
         build.setTotalPaid(dto.getTotalPaid() != null ? dto.getTotalPaid() : build.getTotalPaid());
-        build.setQtdTotalPayments(dto.getQtdTotalPayments() != null ? dto.getQtdTotalPayments() : build.getQtdTotalPayments());
-        build.setPaymentsValue(dto.getPaymentsValue() != null ? dto.getPaymentsValue() : build.getPaymentsValue());
+        build.setBuildCost(dto.getBuildCost() != null ? dto.getBuildCost() : build.getBuildCost());
         build.setStartDate(dto.getStartDate() != null ? dto.getStartDate() : build.getStartDate());
         build.setEndDate(dto.getEndDate() != null ? dto.getEndDate() : build.getEndDate());
 
@@ -115,6 +115,19 @@ public class BuildService {
         }
 
         return parseObject(buildRepository.save(build), BuildResponseDTO.class);
+    }
+
+    public TotalPaidResponseDTO addPayment(Double payment, Long buildId) {
+        Build build = buildRepository.findById(buildId)
+                .orElseThrow(() -> new DataNotFoundException("Build with id " + buildId + " not found"));
+
+        BigDecimal totalPaid = build.getTotalPaid().add(BigDecimal.valueOf(payment));
+        build.setTotalPaid(totalPaid);
+        buildRepository.save(build);
+        return new TotalPaidResponseDTO(
+                BigDecimal.valueOf(payment),
+                totalPaid
+        );
     }
 
     public StatusBuildResponseDTO changeStatus(StatusBuild status, Long buildId) {

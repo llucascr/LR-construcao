@@ -1,21 +1,19 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, X, Plus } from 'lucide-react';
-import { drillingService } from '../services/drillingService';
-import type { DrillingInput } from '../types';
+import { Loader2, X, Save } from 'lucide-react';
+import { buildService } from '../services/buildService';
+import type { CreateBuildRequestDTO } from '../types';
 
-interface CreateDrillingModalProps {
+interface CreateBuildModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-const initialFormState: DrillingInput = {
+const initialFormState: CreateBuildRequestDTO = {
     name: '',
-    drillSize: 0,
-    depth: 0,
-    drillQuatities: 1,
-    priceMeter: 0,
-    invoice: false,
+    buildSize: 0,
+    totalPaid: 0,
+    buildCost: 0,
     startDate: '',
     endDate: '',
     road: '',
@@ -30,40 +28,51 @@ const initialFormState: DrillingInput = {
     ClientPhone: '',
 };
 
-export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProps) => {
-    // Hardcoded user ID for testing/demo as backend doesn't easily expose ID
-    // In production, this should come from AuthContext
-    const TEST_USER_ID = 1;
-
-    const [formData, setFormData] = useState<DrillingInput>(initialFormState);
+export const CreateBuildModal = ({ isOpen, onClose }: CreateBuildModalProps) => {
+    const [formData, setFormData] = useState<CreateBuildRequestDTO>(initialFormState);
     const [error, setError] = useState<string | null>(null);
+
+    // Using localStorage to get user ID as a fallback since AuthContext structure is generic
+    const getUserId = () => {
+        const userStr = localStorage.getItem('user'); // Common pattern
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                return user.id;
+            } catch (e) {
+                console.error("Error parsing user from local storage", e);
+            }
+        }
+        return 1; // Fallback for dev/testing if not found
+    };
 
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
-        mutationFn: (data: DrillingInput) => drillingService.create(data, TEST_USER_ID),
+        mutationFn: (data: CreateBuildRequestDTO) => {
+            const userId = getUserId();
+            // Sanitizing condo fields to avoid ORA-01400 if user leaves them blank
+            // Backend seemingly blindly inserts condo if fields are present
+            const sanitizedData = {
+                ...data,
+                condominiumBlock: data.condominiumBlock.trim() === '' ? ' ' : data.condominiumBlock,
+                condominiumLot: data.condominiumLot.trim() === '' ? ' ' : data.condominiumLot,
+            };
+            return buildService.create(sanitizedData, userId);
+        },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['drillings'] });
-            setFormData(initialFormState);
+            queryClient.invalidateQueries({ queryKey: ['builds'] });
+            setFormData(initialFormState); // Reset form
             onClose();
         },
         onError: (err: any) => {
-            console.error('Failed to create drilling:', err);
-            console.log('Error Response Data:', err.response?.data);
-            console.log('Error Response Status:', err.response?.status);
-            setError(err.response?.data?.message || err.message || 'Failed to create service');
+            console.error('Failed to create build:', err);
+            setError(err.response?.data?.message || err.message || 'Failed to create build');
         },
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
-
-        // Handle boolean checkbox
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setFormData(prev => ({ ...prev, [name]: checked }));
-            return;
-        }
 
         // Handle numbers
         if (type === 'number') {
@@ -92,7 +101,7 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                     <X className="h-5 w-5" />
                 </button>
 
-                <h2 className="mb-6 text-xl font-bold text-gray-900">Novo Serviço de Perfuração</h2>
+                <h2 className="mb-6 text-xl font-bold text-gray-900">Nova Obra</h2>
 
                 {error && (
                     <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-500">
@@ -102,98 +111,79 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Basic Info */}
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Nome do Serviço</label>
-                            <input
-                                required
-                                type="text"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                        </div>
+                    <div>
+                        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">Dados da Obra</h3>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700">Nome da Obra</label>
+                                <input
+                                    required
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
 
-                        <div className="flex items-center space-x-3 pt-6">
-                            <input
-                                type="checkbox"
-                                name="invoice"
-                                id="invoice"
-                                checked={formData.invoice}
-                                onChange={handleChange}
-                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <label htmlFor="invoice" className="text-sm font-medium text-gray-700">Emitir Nota Fiscal</label>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Tamanho (m²)</label>
+                                <input
+                                    type="number"
+                                    name="buildSize"
+                                    value={formData.buildSize || ''}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Data Início</label>
+                                <input
+                                    type="date"
+                                    name="startDate"
+                                    value={formData.startDate}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Data Fim</label>
+                                <input
+                                    type="date"
+                                    name="endDate"
+                                    value={formData.endDate}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Diâmetro Broca</label>
-                            <input
-                                type="number"
-                                name="drillSize"
-                                value={formData.drillSize || ''}
-                                onChange={handleChange}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Profundidade (m)</label>
-                            <input
-                                type="number"
-                                name="depth"
-                                value={formData.depth || ''}
-                                onChange={handleChange}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Quantidade</label>
-                            <input
-                                type="number"
-                                name="drillQuatities"
-                                value={formData.drillQuatities || ''}
-                                onChange={handleChange}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Preço/m</label>
-                            <input
-                                type="number"
-                                name="priceMeter"
-                                value={formData.priceMeter || ''}
-                                onChange={handleChange}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
+                    {/* Financial Info */}
+                    <div className="border-t pt-4">
+                        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">Financeiro</h3>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Custo da Obra</label>
+                                <input
+                                    type="number"
+                                    name="buildCost"
+                                    value={formData.buildCost || ''}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                            </div>
+                            {/* totalPaid is effectively read-only or initialized to 0 in backend create, 
+                                but DTO has it. We can either hide it or let user set initial 'paid so far' 
+                                if backend supported it manually overriding 0? 
+                                User snippet: totalPaid(BigDecimal.valueOf(0)) in create method. 
+                                So inputs here are ignored. Removing input. 
+                            */}
                         </div>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Data Início</label>
-                            <input
-                                type="date"
-                                name="startDate"
-                                value={formData.startDate}
-                                onChange={handleChange}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Data Fim</label>
-                            <input
-                                type="date"
-                                name="endDate"
-                                value={formData.endDate}
-                                onChange={handleChange}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                        </div>
-                    </div>
-
+                    {/* Address */}
                     <div className="border-t pt-4">
                         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">Endereço</h3>
                         <div className="grid gap-4 md:grid-cols-2">
@@ -207,7 +197,7 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 />
                             </div>
-                            <div className="md:col-span-1 grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-2 gap-2">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Número</label>
                                     <input
@@ -253,7 +243,6 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Condomínio Bloco</label>
                                     <input
-                                        required
                                         name="condominiumBlock"
                                         value={formData.condominiumBlock}
                                         onChange={handleChange}
@@ -263,7 +252,6 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Lote</label>
                                     <input
-                                        required
                                         name="condominiumLot"
                                         value={formData.condominiumLot}
                                         onChange={handleChange}
@@ -274,6 +262,7 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                         </div>
                     </div>
 
+                    {/* Client */}
                     <div className="border-t pt-4">
                         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">Cliente</h3>
                         <div className="grid gap-4 md:grid-cols-1">
@@ -287,7 +276,7 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Email</label>
                                     <input
@@ -311,10 +300,9 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
-                    <div className="flex justify-end space-x-3 pt-6">
+                    <div className="flex justify-end space-x-3 pt-6 border-t">
                         <button
                             type="button"
                             onClick={onClose}
@@ -330,9 +318,9 @@ export const CreateDrillingModal = ({ isOpen, onClose }: CreateDrillingModalProp
                             {mutation.isPending ? (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : (
-                                <Plus className="mr-2 h-4 w-4" />
+                                <Save className="mr-2 h-4 w-4" />
                             )}
-                            Criar Serviço
+                            Criar Obra
                         </button>
                     </div>
                 </form>

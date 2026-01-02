@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static com.lr.construcao.management.mapper.ObjectMapper.*;
 
@@ -54,14 +55,17 @@ public class ClientService {
     }
 
     public Client createReturnClient(ClientRequestDTO dto, Long userId) {
-        if (clientRepository.findClientByEmail(dto.getEmail()).isPresent()) {
-            throw new EntityAlreadyExistExcpetion("Client with email " + dto.getEmail() + " Already exist");
+
+        Optional<Client> existingClient = clientRepository.findClientByEmail(dto.getEmail());
+
+        if (existingClient.isPresent()) {
+            return existingClient.get();
         }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
 
-        if (user.getActive() == false) {
+        if (!user.getActive()) {
             throw new UserDisableException("The user with id " + userId + " is desactivated and cannot register clients");
         }
 

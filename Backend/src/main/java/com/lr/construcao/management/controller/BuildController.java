@@ -4,6 +4,7 @@ import com.lr.construcao.management.dto.enuns.StatusBuild;
 import com.lr.construcao.management.dto.request.Build.BuildRequestDTO;
 import com.lr.construcao.management.dto.response.Build.BuildResponseDTO;
 import com.lr.construcao.management.dto.response.Build.StatusBuildResponseDTO;
+import com.lr.construcao.management.dto.response.Build.TotalPaidResponseDTO;
 import com.lr.construcao.management.service.BuildService;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -13,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -52,6 +54,15 @@ public class BuildController {
     public ResponseEntity<StatusBuildResponseDTO> changeStatus(
             @RequestParam StatusBuild statusBuild, @NonNull @RequestParam Long buildId) {
         return ResponseEntity.status(HttpStatus.OK).body(service.changeStatus(statusBuild, buildId));
+    }
+
+    @PostMapping(
+            value = "/addpayment",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<TotalPaidResponseDTO> addPayment (
+            @RequestParam Double payment, @NonNull @RequestParam Long buildId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.addPayment(payment, buildId));
     }
 
     @GetMapping(

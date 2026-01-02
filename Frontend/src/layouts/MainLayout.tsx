@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Home, Users, Hammer, HardHat, Settings, UserCog, Menu, LogOut } from 'lucide-react';
+import { Home, Users, Hammer, HardHat, UserCog, Menu, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const MainLayout = () => {
@@ -10,8 +10,7 @@ const MainLayout = () => {
         { path: '/clients', label: 'Clients', icon: Users },
         { path: '/drilling', label: 'Drilling Services', icon: Hammer },
         { path: '/builds', label: 'Build Services', icon: HardHat },
-        { path: '/users', label: 'Users', icon: UserCog },
-        { path: '/settings', label: 'Settings', icon: Settings },
+
     ];
 
     const { logout, token } = useAuth();

@@ -1,5 +1,5 @@
 export type PaymentStatus = 'PAGO' | 'NAO_PAGO' | 'ATRASADO';
-export type BuildStatus = 'WAITING' | 'EXECUTION' | 'FINISHED';
+export type BuildStatus = 'EM_ESPERA' | 'CONSTRUINDO' | 'CONCLUIDO';
 
 export interface AccountCredentialsDTO {
     username?: string; // or email, based on your backend. The prompt says "credentials", typically username/email + password
@@ -55,8 +55,8 @@ export interface ClientInput {
 
 export interface Condominium {
     id: number;
-    block: string;
-    lot: string;
+    Block: string;
+    Lot: string;
 }
 
 export interface Address {
@@ -65,7 +65,7 @@ export interface Address {
     number: string;
     neighborhood: string;
     city: string;
-    cep: string;
+    Cep: string;
     condominium_id?: number | null;
     condominium?: Condominium; // Optional nested object if populated
 }
@@ -128,4 +128,51 @@ export interface DrillingInput {
     ClientName: string;
     Clientemail: string;
     ClientPhone: string;
+}
+
+export interface BuildResponseDTO {
+    id: number;
+    name: string;
+    buildSize: number;
+    totalPaid: number;
+    buildCost: number; // Replaced qtdTotalPayments & paymentsValue
+    status: BuildStatus;
+    startDate: string;
+    endDate: string;
+    createAt: string;
+    updateAt: string;
+    address: Address;
+    client: Client;
+    user: User;
+}
+
+export interface BuildRequestDTO {
+    name: string;
+    buildSize: number;
+    totalPaid: number;
+    buildCost: number;
+    startDate: string;
+    endDate: string;
+
+    // Flattened Address
+    road: string;
+    numberAddress: string;
+    neighborhood: string;
+    city: string;
+    Cep: string;
+    condominiumBlock: string;
+    condominiumLot: string;
+
+    // Flattened Client
+    ClientName: string;
+    Clientemail: string;
+    ClientPhone: string;
+}
+
+// Create DTO is now identical to BuildRequestDTO
+export type CreateBuildRequestDTO = BuildRequestDTO;
+
+export interface TotalPaidResponseDTO {
+    addedValue: number;
+    totalPaid: number;
 }

@@ -23,15 +23,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class BuildResponseDTO {
 
+    private Long id;
+
     private String name;
 
     private BigDecimal buildSize;
 
     private BigDecimal totalPaid;
 
-    private BigInteger qtdTotalPayments;
-
-    private BigDecimal paymentsValue;
+    private BigDecimal buildCost;
 
     private StatusBuild status;
 
