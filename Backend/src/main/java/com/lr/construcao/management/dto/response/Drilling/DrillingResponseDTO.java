@@ -54,7 +54,7 @@ public class DrillingResponseDTO {
 
     public BigDecimal getTotalValue() {
         if (drillQuatities == null || depth == null || priceMeter == null) {
-            return BigDecimal.ZERO; // Ou retorne null, dependendo da sua regra de negócio
+            return BigDecimal.ZERO;
         }
 
         BigInteger totalDepth = drillQuatities.multiply(depth);

@@ -15,3 +15,17 @@ export const signin = async (credentials: AccountCredentialsDTO): Promise<TokenD
     return response.data;
 };
 
+export const refreshToken = async (email: string, refreshToken: string): Promise<TokenDTO> => {
+    const response = await axios.put(`${API_URL}/refresh`, null, {
+        params: { email },
+        headers: { Authorization: refreshToken }
+    });
+
+    // Handle wrapped response if necessary
+    if (response.data && response.data.body) {
+        return response.data.body;
+    }
+
+    return response.data;
+};
+

@@ -16,22 +16,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [token, setToken] = useState<TokenDTO | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const setupRefreshTimer = React.useCallback((currentToken: TokenDTO) => {
+        // Hardcoded 1 hour time as requested (3600000 ms)
+
+        const REFRESH_TIME = 3600000; // 1 hour
+
+        // Clear any existing timer if we were storing it in a ref (simplified here for functional component)
+
+        setTimeout(async () => {
+            try {
+                console.log('AuthContext: Triggering auto-refresh token...');
+                const { email, refreshToken } = currentToken;
+                if (!email || !refreshToken) {
+                    throw new Error('Missing email or refresh token');
+                }
+
+                // Import dynamically to avoid circular dependency if any (though authService is pure)
+                const { refreshToken: refreshCall } = await import('../services/authService');
+
+                const newToken = await refreshCall(email, refreshToken);
+                console.log('AuthContext: Token refreshed successfully');
+
+                setToken(newToken);
+                localStorage.setItem('token', JSON.stringify(newToken));
+
+                // Recursively set up next refresh
+                setupRefreshTimer(newToken);
+
+            } catch (error) {
+                console.error('AuthContext: Auto-refresh failed', error);
+                // Optionally logout on fail, or just let the token expire naturally
+                // logout(); 
+            }
+        }, REFRESH_TIME);
+    }, []);
+
     useEffect(() => {
         const initializeAuth = () => {
             const storedToken = localStorage.getItem('token');
             if (storedToken) {
                 try {
                     const parsedToken = JSON.parse(storedToken);
-                    // Check for invalid token structure (backward compatibility/fix for wrapped response)
+
+                    // Validate token structure
                     if (parsedToken && (parsedToken.body || parsedToken.statusCode)) {
-                        console.warn('AuthContext: Detected invalid token structure. Clearing storage to force re-login.');
+                        console.warn('AuthContext: Invalid token structure. force logout.');
                         localStorage.removeItem('token');
                         setToken(null);
                     } else {
                         setToken(parsedToken);
+
+                        // Setup Auto-Refresh
+                        setupRefreshTimer(parsedToken);
                     }
                 } catch (error) {
-                    console.error('AuthContext: Failed to parse token', error);
+                    console.error('AuthContext: Token parse error', error);
                     localStorage.removeItem('token');
                     setToken(null);
                 }
@@ -39,13 +78,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         };
         initializeAuth();
-    }, []);
+    }, [setupRefreshTimer]);
+
 
     const login = async (credentials: AccountCredentialsDTO) => {
         try {
             const data = await authSignin(credentials);
             setToken(data);
             localStorage.setItem('token', JSON.stringify(data));
+
+            // Start refresh timer
+            setupRefreshTimer(data);
         } catch (error) {
             console.error('Login failed', error);
             throw error;

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public interface BuildRepository extends JpaRepository<Build, Long> {
@@ -20,5 +21,11 @@ public interface BuildRepository extends JpaRepository<Build, Long> {
           """)
     Page<Build> searchByName(@Param("name") String name, Pageable pageable);
 
-    
+    @Query("""
+    SELECT SUM(b.totalPaid) 
+    FROM Build b 
+    WHERE YEAR(b.startDate) = :year
+""")
+    BigDecimal getTotalPaidBuildMonth(@Param("year") int year);
+
 }

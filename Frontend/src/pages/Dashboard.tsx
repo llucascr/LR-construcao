@@ -9,36 +9,68 @@ import {
     MapPin
 } from 'lucide-react';
 
+import { useQuery } from '@tanstack/react-query';
+import { dashboardService } from '../services/dashboardService';
+
 export const Dashboard: React.FC = () => {
-    // Mock Data
+    // Queries
+    const { data: totalDrilling } = useQuery({
+        queryKey: ['dashboard', 'totalDrilling'],
+        queryFn: dashboardService.getTotalDrillingMonth
+    });
+
+    const { data: monthlyRevenue } = useQuery({
+        queryKey: ['dashboard', 'monthlyRevenue'],
+        queryFn: dashboardService.getMonthlyRevenue
+    });
+
+    const { data: totalPaidBuild } = useQuery({
+        queryKey: ['dashboard', 'totalPaidBuild'],
+        queryFn: dashboardService.getTotalPaidBuildMonth
+    });
+
+    const { data: totalClients } = useQuery({
+        queryKey: ['dashboard', 'totalClients'],
+        queryFn: dashboardService.getTotalClients
+    });
+
+    const formatCurrency = (value: number | undefined) => {
+        if (value === undefined) return 'Carregando...';
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(value);
+    };
+
+    // Metrics Data
     const metrics = [
         {
             label: 'Perfurações (Mês)',
-            value: '12',
-            trend: '+20%',
+            value: totalDrilling?.toString() || '0',
+            trend: '+20%', // Keeping mock trend for now as API doesn't provide it
             trendUp: true,
             icon: Hammer,
             color: 'bg-blue-50 text-blue-600'
         },
         {
             label: 'Faturamento Perfuração',
-            value: 'R$ 45.200',
+            value: formatCurrency(monthlyRevenue),
             trend: '+15%',
             trendUp: true,
             icon: DollarSign,
             color: 'bg-green-50 text-green-600'
         },
         {
-            label: 'Obras Ativas',
-            value: '3',
-            trend: 'No prazo',
+            label: 'Faturamento Obras',
+            value: formatCurrency(totalPaidBuild),
+            trend: '+8%',
             trendUp: true,
             icon: HardHat,
             color: 'bg-orange-50 text-orange-600'
         },
         {
             label: 'Total Clientes',
-            value: '28',
+            value: totalClients?.toString() || '0',
             trend: '+2 novos',
             trendUp: true,
             icon: Users,

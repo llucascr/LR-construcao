@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Home, Users, Hammer, HardHat, UserCog, Menu, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import Logo from '../assets/Logo.PNG';
 
 const MainLayout = () => {
     const location = useLocation();
@@ -19,8 +20,8 @@ const MainLayout = () => {
         <div className="min-h-screen bg-gray-100 flex">
             {/* Sidebar */}
             <aside className="w-64 bg-white shadow-md hidden md:flex flex-col">
-                <div className="p-6 border-b">
-                    <h1 className="text-2xl font-bold text-red-600">LR Construções</h1>
+                <div className="p-6 border-b flex justify-center">
+                    <img src={Logo} alt="LR Construções" className="h-12 object-contain" />
                 </div>
                 <nav className="flex-1 p-4 space-y-2">
                     {navItems.map((item) => {
@@ -70,7 +71,7 @@ const MainLayout = () => {
             <div className="flex-1 flex flex-col">
                 {/* Mobile Header */}
                 <header className="bg-white shadow-sm p-4 md:hidden flex items-center justify-between">
-                    <h1 className="text-xl font-bold text-red-600">LR Construções</h1>
+                    <img src={Logo} alt="LR Construções" className="h-8 object-contain" />
                     <button className="p-2 text-gray-600">
                         <Menu size={24} />
                     </button>
