@@ -13,12 +13,16 @@ api.interceptors.request.use((config) => {
     if (storedToken) {
         try {
             const tokenDTO = JSON.parse(storedToken);
-            console.log('Interceptor: Parsed tokenDTO', tokenDTO);
-            if (tokenDTO.accessToken) {
-                config.headers.Authorization = `Bearer ${tokenDTO.accessToken}`;
-                console.log('Interceptor: Attached Authorization header');
+            console.log('Interceptor: Parsed tokenDTO keys:', Object.keys(tokenDTO));
+
+            // Robust check for access token in various likely locations
+            const token = tokenDTO.accessToken || tokenDTO.token || (tokenDTO.body && tokenDTO.body.accessToken);
+
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+                // console.log('Interceptor: Attached Authorization header'); 
             } else {
-                console.warn('Interceptor: No accessToken found in tokenDTO');
+                console.error('Interceptor: Token object found but NO accessToken detected!', tokenDTO);
             }
         } catch (error) {
             console.error("Interceptor: Error parsing token", error);

@@ -30,16 +30,16 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
 
-    public ClientResponseDTO create(ClientRequestDTO dto, Long userId) {
+    public ClientResponseDTO create(ClientRequestDTO dto, String userEmail) {
         if (clientRepository.findClientByEmail(dto.getEmail()).isPresent()) {
             throw new EntityAlreadyExistExcpetion("Client with email " + dto.getEmail() + " Already exist");
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException("Client wit id " + userId + " not found"));
+        User user = userRepository.findOpUserByEmail(userEmail)
+                .orElseThrow(() -> new DataNotFoundException("Client with email " + userEmail + " not found"));
 
         if (user.getActive() == false) {
-            throw new UserDisableException("The user with id " + userId + " is desactivated and cannot register clients");
+            throw new UserDisableException("The user with email " + userEmail + " is desactivated and cannot register clients");
         }
 
         Client client = Client.builder()

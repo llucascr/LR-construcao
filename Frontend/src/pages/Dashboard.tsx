@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Users,
     Hammer,
@@ -11,8 +12,11 @@ import {
 
 import { useQuery } from '@tanstack/react-query';
 import { dashboardService } from '../services/dashboardService';
+import { clientService } from '../services/clientService';
+import { formatPhoneNumber } from '../utils/formatters';
 
 export const Dashboard: React.FC = () => {
+    const navigate = useNavigate();
     // Queries
     const { data: totalDrilling } = useQuery({
         queryKey: ['dashboard', 'totalDrilling'],
@@ -32,6 +36,11 @@ export const Dashboard: React.FC = () => {
     const { data: totalClients } = useQuery({
         queryKey: ['dashboard', 'totalClients'],
         queryFn: dashboardService.getTotalClients
+    });
+
+    const { data: clientsList } = useQuery({
+        queryKey: ['dashboard', 'clientsList'],
+        queryFn: () => clientService.getClients(0, 10)
     });
 
     const formatCurrency = (value: number | undefined) => {
@@ -84,12 +93,7 @@ export const Dashboard: React.FC = () => {
         { id: 3, client: 'Condomínio Flower', date: '20/12/2024', meters: 320, value: 'R$ 25.600', status: 'Concluído' },
     ];
 
-    const quickClients = [
-        { id: 1, name: 'Construtora Silva', type: 'Empresa', projects: 5 },
-        { id: 2, name: 'Engenharia Tatuapé', type: 'Parceiro', projects: 3 },
-        { id: 3, name: 'Maria Oliveira', type: 'Particular', projects: 1 },
-        { id: 4, name: 'Condomínio Flower', type: 'Empresa', projects: 2 },
-    ];
+
 
     return (
         <div className="space-y-6">
@@ -233,8 +237,8 @@ export const Dashboard: React.FC = () => {
                             <h2 className="text-lg font-bold text-gray-800">Clientes Principais</h2>
                             <button className="text-gray-400 hover:text-gray-600"><MoreVertical size={18} /></button>
                         </div>
-                        <div className="space-y-4 flex-1 overflow-auto">
-                            {quickClients.map((client) => (
+                        <div className="space-y-4 flex-1 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+                            {clientsList?.map((client) => (
                                 <div key={client.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
@@ -242,16 +246,17 @@ export const Dashboard: React.FC = () => {
                                         </div>
                                         <div>
                                             <p className="text-sm font-semibold text-gray-800">{client.name}</p>
-                                            <p className="text-xs text-gray-500">{client.type}</p>
+                                            <p className="text-xs text-gray-500">{formatPhoneNumber(client.phone)}</p>
                                         </div>
                                     </div>
-                                    <span className="text-xs bg-white border border-gray-200 px-2 py-1 rounded-md text-gray-600">
-                                        {client.projects} obras
-                                    </span>
+                                    {/* Removing projects count as it's not in the simple Client DTO */}
                                 </div>
                             ))}
                         </div>
-                        <button className="w-full mt-4 text-center text-sm text-blue-600 hover:text-blue-700 font-medium py-2 border-t pt-4">
+                        <button
+                            onClick={() => navigate('/clients')}
+                            className="w-full mt-4 text-center text-sm text-blue-600 hover:text-blue-700 font-medium py-2 border-t pt-4"
+                        >
                             Ver Todos os Clientes
                         </button>
                     </div>

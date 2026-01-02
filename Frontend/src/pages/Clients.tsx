@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { Search, Plus, User as UserIcon, Phone, Mail, Calendar } from 'lucide-react';
 import { clientService } from '../services/clientService';
 import { userService } from '../services/userService';
+import { useAuth } from '../context/AuthContext';
 import type { Client, User, ClientInput } from '../types';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
+import { formatPhoneNumber } from '../utils/formatters';
 
 export const Clients = () => {
+    const { token } = useAuth();
     const [clients, setClients] = useState<Client[]>([]);
     const [users, setUsers] = useState<Record<number, User>>({});
     const [loading, setLoading] = useState(true);
@@ -117,7 +120,20 @@ export const Clients = () => {
                 }
             } else {
                 console.log('Mode: CREATE');
-                await clientService.create(formData);
+
+                // Try to find current user from the loaded users list
+                // No longer need to lookup user ID from list
+                // Backend now accepts userEmail directly
+                const userEmail = token?.email;
+
+                if (!userEmail) {
+                    console.error('Token email is missing! Cannot create client.');
+                    alert('Erro: Email do usuário não encontrado. Faça login novamente.');
+                    return;
+                }
+
+                console.log('Creating client with User Email:', userEmail);
+                await clientService.create(formData, userEmail);
             }
 
             // Close modal, reset form, and refresh list
@@ -203,7 +219,7 @@ export const Clients = () => {
                                                 </div>
                                                 <div className="flex items-center gap-2 text-gray-500 text-xs">
                                                     <Phone className="w-3.5 h-3.5" />
-                                                    {client.phone}
+                                                    {formatPhoneNumber(client.phone)}
                                                 </div>
                                             </div>
                                         </td>
