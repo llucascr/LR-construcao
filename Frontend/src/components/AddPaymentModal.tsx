@@ -37,7 +37,7 @@ export const AddPaymentModal = ({ isOpen, onClose, buildId, onSuccess }: AddPaym
 
         const amount = parseFloat(paymentValue);
         if (isNaN(amount) || amount <= 0) {
-            setError('Please enter a valid payment amount greater than 0');
+            setError('Por favor, insira um valor de pagamento válido maior que 0');
             return;
         }
 

@@ -67,7 +67,7 @@ export const CreateBuildModal = ({ isOpen, onClose }: CreateBuildModalProps) => 
         },
         onError: (err: any) => {
             console.error('Failed to create build:', err);
-            setError(err.response?.data?.message || err.message || 'Failed to create build');
+            setError(err.response?.data?.message || err.message || 'Falha ao criar obra');
         },
     });
 

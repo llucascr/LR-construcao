@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Search, Plus, User as UserIcon, Phone, Mail, Calendar } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Search, Plus, User as UserIcon, Phone, Mail, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { clientService } from '../services/clientService';
+import { dashboardService } from '../services/dashboardService';
 import { userService } from '../services/userService';
 import { useAuth } from '../context/AuthContext';
 import type { Client, User, ClientInput } from '../types';
@@ -15,6 +16,10 @@ export const Clients = () => {
     const [users, setUsers] = useState<Record<number, User>>({});
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const pageSize = 11;
 
     // Modal & Form State
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,32 +31,28 @@ export const Clients = () => {
         phone: ''
     });
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
             setLoading(true);
-            const [clientsResponse, usersResponse] = await Promise.all([
-                clientService.getClients(),
+            const [clientsResponse, totalResponse, usersResponse] = await Promise.all([
+                clientService.getClients(currentPage, pageSize),
+                dashboardService.getTotalClients(),
                 userService.getUsers()
             ]);
 
-            console.log('API Response (Clients):', clientsResponse);
+            // Backend returns List<Client> directly, not Page<Client>
+            const content = Array.isArray(clientsResponse) ? clientsResponse : [];
+            const totalE = typeof totalResponse === 'number' ? totalResponse : 0;
+            const totalP = Math.ceil(totalE / pageSize);
 
-            let clientList: Client[] = [];
-            if (Array.isArray(clientsResponse)) {
-                clientList = clientsResponse;
-            } else if (clientsResponse && (clientsResponse as any).content) {
-                clientList = (clientsResponse as any).content;
-            }
+            console.log('Processed Clients Content:', content);
+            console.log('Pagination info:', { totalE, totalP, currentPage });
 
-            console.log('Processed Client List:', clientList);
+            setClients(content);
+            setTotalElements(totalE);
+            setTotalPages(totalP);
 
-            if (clientList.length > 0) {
-                console.log('First Client Structure:', clientList[0]);
-            }
-
-            setClients(clientList);
-
-            const userList = (usersResponse as any).content ? (usersResponse as any).content : usersResponse;
+            const userList = (usersResponse as { content?: User[] }).content || (Array.isArray(usersResponse) ? usersResponse : []);
 
             const userMap = (Array.isArray(userList) ? userList : []).reduce((acc: Record<number, User>, user: User) => {
                 acc[user.id] = user;
@@ -64,11 +65,17 @@ export const Clients = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentPage]);
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [fetchData]);
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
 
     const handleOpenModal = (client?: Client) => {
         console.log('Opening modal with client:', client);
@@ -155,17 +162,17 @@ export const Clients = () => {
     );
 
     return (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-4 animate-fadeIn">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
-                    <p className="text-gray-500 mt-1">Manage your client base</p>
+                    <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
+                    <p className="text-gray-500 mt-1">Gerencie sua base de clientes</p>
                 </div>
                 <Button
                     leftIcon={<Plus className="w-4 h-4" />}
                     onClick={() => handleOpenModal()}
                 >
-                    New Client
+                    Novo Cliente
                 </Button>
             </div>
 
@@ -173,7 +180,7 @@ export const Clients = () => {
                 <div className="p-4 border-b border-gray-200 bg-gray-50/50">
                     <div className="max-w-md">
                         <Input
-                            placeholder="Search clients..."
+                            placeholder="Buscar clientes..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             leftIcon={<Search className="w-4 h-4" />}
@@ -183,67 +190,68 @@ export const Clients = () => {
 
                 <div className="overflow-x-auto">
                     {loading ? (
-                        <div className="p-8 text-center text-gray-500">Loading clients...</div>
+                        <div className="p-8 text-center text-gray-500">Carregando clientes...</div>
                     ) : filteredClients.length === 0 ? (
-                        <div className="p-8 text-center text-gray-500">No clients found.</div>
+                        <div className="p-8 text-center text-gray-500">Nenhum cliente encontrado.</div>
                     ) : (
                         <table className="w-full text-left text-sm">
                             <thead className="bg-gray-50 border-b border-gray-200 font-medium text-gray-600">
                                 <tr>
-                                    <th className="px-6 py-4">Name</th>
-                                    <th className="px-6 py-4 hidden sm:table-cell">Contact</th>
-                                    <th className="px-6 py-4 hidden md:table-cell">Created By</th>
-                                    <th className="px-6 py-4 hidden lg:table-cell">Date Added</th>
-                                    <th className="px-6 py-4 text-right">Actions</th>
+                                    <th className="px-6 py-3">Nome</th>
+                                    <th className="px-6 py-3 hidden sm:table-cell">Contato</th>
+                                    <th className="px-6 py-3 hidden md:table-cell">Criado Por</th>
+                                    <th className="px-6 py-3 hidden lg:table-cell">Criado em</th>
+                                    <th className="px-6 py-3 text-right">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
                                 {filteredClients.map((client) => (
                                     <tr key={client.id} className="hover:bg-gray-50 transition-colors group">
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-semibold">
+                                                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-semibold text-xs">
                                                     {client.name.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <div className="font-semibold text-gray-900">{client.name}</div>
+                                                    <div className="font-semibold text-gray-900 text-sm">{client.name}</div>
                                                     <div className="text-xs text-gray-500 sm:hidden">{client.email}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 hidden sm:table-cell">
-                                            <div className="flex flex-col gap-1">
-                                                <div className="flex items-center gap-2 text-gray-600">
-                                                    <Mail className="w-3.5 h-3.5" />
+                                        <td className="px-6 py-2 hidden sm:table-cell">
+                                            <div className="flex flex-col gap-0.5">
+                                                <div className="flex items-center gap-2 text-gray-600 text-xs">
+                                                    <Mail className="w-3 h-3" />
                                                     {client.email}
                                                 </div>
                                                 <div className="flex items-center gap-2 text-gray-500 text-xs">
-                                                    <Phone className="w-3.5 h-3.5" />
+                                                    <Phone className="w-3 h-3" />
                                                     {formatPhoneNumber(client.phone)}
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 hidden md:table-cell">
+                                        <td className="px-6 py-2 hidden md:table-cell">
                                             <div className="flex items-center gap-2">
-                                                <div className="bg-gray-100 p-1.5 rounded-full">
-                                                    <UserIcon className="w-3.5 h-3.5 text-gray-500" />
+                                                <div className="bg-gray-100 p-1 rounded-full">
+                                                    <UserIcon className="w-3 h-3 text-gray-500" />
                                                 </div>
-                                                <span className="text-gray-700">
-                                                    {users[client.user_id]?.name || 'Unknown User'}
+                                                <span className="text-gray-700 text-xs">
+                                                    {users[client.user_id]?.name || 'Usuário Desconhecido'}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 hidden lg:table-cell text-gray-500">
+                                        <td className="px-6 py-2 hidden lg:table-cell text-gray-500 text-xs">
                                             <div className="flex items-center gap-2">
-                                                <Calendar className="w-3.5 h-3.5" />
-                                                {new Date(client.create_at).toLocaleDateString()}
+                                                <Calendar className="w-3 h-3" />
+                                                {new Date(client.createAt).toLocaleDateString()}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-6 py-2 text-right">
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => handleOpenModal(client)}
+                                                className="h-8 text-xs"
                                             >
                                                 Edit
                                             </Button>
@@ -254,27 +262,58 @@ export const Clients = () => {
                         </table>
                     )}
                 </div>
+
+
+                {/* Pagination Controls */}
+                <div className="flex items-center justify-between p-4 border-t border-gray-200 bg-gray-50">
+                    <p className="text-sm text-gray-500">
+                        Mostrando <span className="font-medium">{clients.length}</span> de <span className="font-medium">{totalElements}</span> resultados
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 0}
+                            leftIcon={<ChevronLeft className="w-4 h-4" />}
+                        >
+                            Anterior
+                        </Button>
+                        <span className="text-sm text-gray-600 font-medium px-2">
+                            Página {currentPage + 1} de {totalPages}
+                        </span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages - 1}
+                            rightIcon={<ChevronRight className="w-4 h-4" />}
+                        >
+                            Próximo
+                        </Button>
+                    </div>
+                </div>
             </div>
 
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={editingId ? "Edit Client" : "New Client"}
+                title={editingId ? "Editar Cliente" : "Novo Cliente"}
                 footer={
                     <>
                         <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-                            Cancel
+                            Cancelar
                         </Button>
                         <Button onClick={handleSubmit} isLoading={isSubmitting}>
-                            {editingId ? "Save Changes" : "Save Client"}
+                            {editingId ? "Salvar Alterações" : "Salvar Cliente"}
                         </Button>
                     </>
                 }
             >
                 <form id="client-form" onSubmit={handleSubmit} className="space-y-4">
                     <Input
-                        label="Name"
-                        placeholder="John Doe"
+                        label="Nome"
+                        placeholder="João Silva"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
@@ -297,6 +336,6 @@ export const Clients = () => {
                     />
                 </form>
             </Modal>
-        </div>
+        </div >
     );
 };

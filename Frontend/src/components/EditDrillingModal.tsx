@@ -63,9 +63,9 @@ export const EditDrillingModal = ({ isOpen, onClose, drilling }: EditDrillingMod
                 numberAddress: drilling.address?.number || (drilling.address as any)?.numberAddress || '',
                 neighborhood: drilling.address?.neighborhood || '',
                 city: drilling.address?.city || '',
-                Cep: drilling.address?.cep || (drilling.address as any)?.Cep || '',
-                condominiumBlock: drilling.address?.condominium?.block || '',
-                condominiumLot: drilling.address?.condominium?.lot || '',
+                Cep: drilling.address?.Cep || (drilling.address as any)?.cep || '',
+                condominiumBlock: drilling.address?.condominium?.Block || '',
+                condominiumLot: drilling.address?.condominium?.Lot || '',
                 ClientName: drilling.client?.name || '',
                 Clientemail: drilling.client?.email || '',
                 ClientPhone: drilling.client?.phone || '',
@@ -87,7 +87,7 @@ export const EditDrillingModal = ({ isOpen, onClose, drilling }: EditDrillingMod
         },
         onError: (err: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
             console.error('Failed to update drilling:', err);
-            setError(err.response?.data?.message || err.message || 'Failed to update service');
+            setError(err.response?.data?.message || err.message || 'Falha ao atualizar serviço');
         },
     });
 
@@ -109,7 +109,7 @@ export const EditDrillingModal = ({ isOpen, onClose, drilling }: EditDrillingMod
         },
         onError: (err: any) => {
             console.error('Failed to change status:', err);
-            setError('Failed to change status');
+            setError('Falha ao alterar status');
         }
     });
 
@@ -119,7 +119,7 @@ export const EditDrillingModal = ({ isOpen, onClose, drilling }: EditDrillingMod
             if (drillingId) {
                 statusMutation.mutate({ status, id: drillingId });
             } else {
-                setError("Cannot change status: Drilling ID not found.");
+                setError("Não é possível alterar o status: ID do serviço não encontrado.");
             }
         }
     };
@@ -149,7 +149,7 @@ export const EditDrillingModal = ({ isOpen, onClose, drilling }: EditDrillingMod
         if (drilling) {
             const drillingId = drilling.id || (drilling as any).drillingId;
             if (!drillingId) {
-                setError("Could not find ID for this drilling service. Check console for available fields.");
+                setError("Não foi possível encontrar o ID para este serviço. Verifique o console para campos disponíveis.");
                 return;
             }
 
@@ -208,7 +208,7 @@ export const EditDrillingModal = ({ isOpen, onClose, drilling }: EditDrillingMod
 
                     <div className="grid gap-4 md:grid-cols-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Tamanho (mm)</label>
+                            <label className="block text-sm font-medium text-gray-700">Diâmetro Broca</label>
                             <input
                                 type="number"
                                 name="drillSize"

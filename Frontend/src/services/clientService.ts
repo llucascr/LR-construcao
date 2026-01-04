@@ -1,8 +1,8 @@
 import { api } from './api';
-import type { Client, ClientInput } from '../types';
+import type { Client, ClientInput, Page } from '../types';
 
 export const clientService = {
-    getClients: async (page = 0, size = 10): Promise<Client[]> => {
+    getClients: async (page = 0, size = 9): Promise<Client[]> => {
         const response = await api.get<Client[]>(`/client/findAll`, {
             params: {
                 page,

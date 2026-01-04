@@ -18,7 +18,7 @@ export const signin = async (credentials: AccountCredentialsDTO): Promise<TokenD
 export const refreshToken = async (email: string, refreshToken: string): Promise<TokenDTO> => {
     const response = await axios.put(`${API_URL}/refresh`, null, {
         params: { email },
-        headers: { Authorization: refreshToken }
+        headers: { Authorization: `Bearer ${refreshToken}` }
     });
 
     // Handle wrapped response if necessary

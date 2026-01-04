@@ -69,7 +69,7 @@ public class ClientService {
             throw new UserDisableException("The user with id " + userId + " is desactivated and cannot register clients");
         }
 
-        return Client.builder()
+        Client client = Client.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .phone(dto.getPhone())
@@ -77,6 +77,9 @@ public class ClientService {
                 .updateAt(LocalDateTime.now())
                 .user(user)
                 .build();
+
+        clientRepository.save(client);
+        return client;
     }
 
     public ClientResponseDTO update(ClientRequestDTO dto, Long clientId) {

@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { drillingService } from '../services/drillingService';
-import { Loader2, AlertCircle, FileText, Search } from 'lucide-react';
+
+import { Loader2, AlertCircle, FileText, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CreateDrillingModal } from '../components/CreateDrillingModal';
 import { EditDrillingModal } from '../components/EditDrillingModal';
 import { DrillingDetailsModal } from '../components/DrillingDetailsModal';
 import type { Drilling as DrillingType } from '../types';
 
 export const Drilling = () => {
-    const [page] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingDrilling, setEditingDrilling] = useState<DrillingType | null>(null);
     const [selectedDrilling, setSelectedDrilling] = useState<DrillingType | null>(null);
@@ -16,16 +17,31 @@ export const Drilling = () => {
     const pageSize = 10;
 
     const { data: drillings, isLoading, isError, error } = useQuery({
-        queryKey: ['drillings', page],
-        queryFn: () => drillingService.getAll(page, pageSize),
+        queryKey: ['drillings', currentPage],
+        queryFn: async () => {
+            const response = await drillingService.getAll(currentPage, pageSize);
+            // Handle if response is array or Page (fallback)
+            return Array.isArray(response) ? response : (response.content || []);
+        },
     });
+
+    const handlePageChange = (newPage: number) => {
+        // Prevent going below 0
+        if (newPage < 0) return;
+
+        // For next page, we only allow if we currently have a full page
+        // This is a heuristic since we don't have total count
+        if (newPage > currentPage && (!drillings || drillings.length < pageSize)) return;
+
+        setCurrentPage(newPage);
+    };
 
     if (isError) {
         console.error('Error loading drillings:', error);
     }
 
     // Handle both array and Page response structures
-    const allDrillings: DrillingType[] = Array.isArray(drillings) ? drillings : (drillings?.content || []);
+    const allDrillings: DrillingType[] = drillings || [];
 
     const safeContent = allDrillings.filter(drill => {
         if (!searchTerm) return true;
@@ -36,8 +52,8 @@ export const Drilling = () => {
             drill.address?.road,
             drill.address?.neighborhood,
             drill.address?.city,
-            drill.address?.condominium?.block,
-            drill.address?.condominium?.lot
+            drill.address?.condominium?.Block,
+            drill.address?.condominium?.Lot
         ];
 
         return searchFields.some(field => field && field.toLowerCase().includes(lowerTerm));
@@ -81,7 +97,7 @@ export const Drilling = () => {
         <div className="space-y-6 p-6">
             <div className="flex items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Drilling Services</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Serviços de Perfuração</h1>
                     <p className="text-sm text-gray-500">Gerencie todas as perfurações e serviços</p>
                 </div>
 
@@ -116,19 +132,19 @@ export const Drilling = () => {
                                     Nome
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Drill Size
+                                    Diâmetro
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Depth
+                                    Profundidade
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Quantities
+                                    Quantidade
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Price/m
+                                    Preço/m
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                    Total Value
+                                    Valor Total
                                 </th>
                                 <th scope="col" className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Ações
@@ -195,8 +211,34 @@ export const Drilling = () => {
                 </div>
 
                 {/* Pagination Removed as API returns complete list */}
+                {/* Pagination Controls */}
                 <div className="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3">
-                    <p className="text-sm text-gray-500">Mostrando {safeContent.length} resultados</p>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500">
+                            Mostrando {safeContent.length} itens (Página Atual)
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 0}
+                            className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <ChevronLeft className="mr-1 h-4 w-4" />
+                            Anterior
+                        </button>
+                        <span className="text-sm text-gray-600 font-medium px-2">
+                            Página {currentPage + 1}
+                        </span>
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={!drillings || drillings.length < pageSize}
+                            className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Próximo
+                            <ChevronRight className="ml-1 h-4 w-4" />
+                        </button>
+                    </div>
                 </div>
             </div>
 

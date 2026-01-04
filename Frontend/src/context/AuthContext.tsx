@@ -17,11 +17,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [loading, setLoading] = useState(true);
 
     const setupRefreshTimer = React.useCallback((currentToken: TokenDTO) => {
-        // Hardcoded 1 hour time as requested (3600000 ms)
+        if (!currentToken.expiration) {
+            console.warn('AuthContext: Token has no expiration date. Fallback to 1 hour.');
+            setTimeout(() => { /* existing logic */ }, 3600000);
+            return;
+        }
 
-        const REFRESH_TIME = 3600000; // 1 hour
+        const expiresAt = new Date(currentToken.expiration).getTime();
+        const now = Date.now();
+        const timeUntilExpiration = expiresAt - now;
 
-        // Clear any existing timer if we were storing it in a ref (simplified here for functional component)
+        // Refresh 5 minutes before expiration
+        const BUFFER_TIME = 300000; // 5 minutes
+        const refreshTime = timeUntilExpiration - BUFFER_TIME;
+
+        console.log(`AuthContext: Token expires at ${currentToken.expiration}. Scheduling refresh in ${refreshTime / 1000}s.`);
+
+        if (refreshTime <= 0) {
+            console.log('AuthContext: Token is already expired or close to expiring. Refreshing immediately.');
+            // Trigger refresh immediately (async)
+            (async () => {
+                try {
+                    const { email, refreshToken } = currentToken;
+                    const { refreshToken: refreshCall } = await import('../services/authService');
+                    const newToken = await refreshCall(email, refreshToken);
+                    setToken(newToken);
+                    localStorage.setItem('token', JSON.stringify(newToken));
+                    setupRefreshTimer(newToken);
+                } catch (e) {
+                    console.error('Immediate refresh failed', e);
+                    // logout(); 
+                }
+            })();
+            return;
+        }
 
         setTimeout(async () => {
             try {
@@ -31,24 +60,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     throw new Error('Missing email or refresh token');
                 }
 
-                // Import dynamically to avoid circular dependency if any (though authService is pure)
                 const { refreshToken: refreshCall } = await import('../services/authService');
-
                 const newToken = await refreshCall(email, refreshToken);
                 console.log('AuthContext: Token refreshed successfully');
 
                 setToken(newToken);
                 localStorage.setItem('token', JSON.stringify(newToken));
 
-                // Recursively set up next refresh
-                setupRefreshTimer(newToken);
+                setupRefreshTimer(newToken); // Recursively set up next refresh
 
             } catch (error) {
                 console.error('AuthContext: Auto-refresh failed', error);
-                // Optionally logout on fail, or just let the token expire naturally
-                // logout(); 
+                // logout();
             }
-        }, REFRESH_TIME);
+        }, refreshTime);
     }, []);
 
     useEffect(() => {

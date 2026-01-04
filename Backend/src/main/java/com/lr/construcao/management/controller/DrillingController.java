@@ -68,4 +68,16 @@ public class DrillingController {
         return ResponseEntity.status(HttpStatus.OK).body(service.findAll(page, numberOfDrilling).getContent());
     }
 
+    @GetMapping(
+            value = "/drillingsByClient",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<List<DrillingResponseDTO>> findPerforationsByClient(
+            @RequestParam(required = false, defaultValue = "0" ) int page,
+            @RequestParam(required = false, defaultValue = "10") int numberOfDrilling,
+            @RequestParam Long clientId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findPerforationsByClient(page, numberOfDrilling, clientId).getContent());
+    }
+
 }

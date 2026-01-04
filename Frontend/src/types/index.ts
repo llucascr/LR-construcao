@@ -33,8 +33,8 @@ export interface User {
     email: string;
     password?: string; // Optional for frontend display
     active: boolean;
-    create_at: string; // ISO Date string
-    update_at: string;
+    createAt: string; // ISO Date string
+    updateAt: string;
 }
 
 export interface Client {
@@ -43,8 +43,8 @@ export interface Client {
     name: string;
     email: string;
     phone: string;
-    create_at: string;
-    update_at: string;
+    createAt: string;
+    updateAt: string;
 }
 
 export interface ClientInput {
@@ -87,6 +87,16 @@ export interface Drilling {
     address: Address;
     client: Client;
     user: User;
+}
+
+export interface DrillingRecentResponseDTO {
+    id: number;
+    name: string;
+    clientName: string;
+    totalValue: number;
+    paymentsStatus: PaymentStatus;
+    startDate: string;
+    depth: number;
 }
 
 export interface Build {

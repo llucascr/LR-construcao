@@ -136,7 +136,7 @@ export const Builds: React.FC = () => {
         switch (status) {
             case 'EM_ESPERA': return 'EM ESPERA';
             case 'CONSTRUINDO': return 'CONSTRUINDO';
-            case 'CONCLUIDO': return 'CONCLUIDO';
+            case 'CONCLUIDO': return 'CONCLUÍDO';
             default: return status;
         }
     };
@@ -173,11 +173,11 @@ export const Builds: React.FC = () => {
     };
 
     if (isLoading) {
-        return <div className="flex justify-center items-center h-full">Loading...</div>;
+        return <div className="flex justify-center items-center h-full">Carregando...</div>;
     }
 
     if (error) {
-        return <div className="text-red-500 text-center">Error loading builds</div>;
+        return <div className="text-red-500 text-center">Erro ao carregar obras</div>;
     }
 
     return (
@@ -185,7 +185,7 @@ export const Builds: React.FC = () => {
             {/* Header Area */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Build Service</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Serviços de Obras</h1>
                     <p className="text-sm text-gray-500">Gerencie todas as obras</p>
                 </div>
                 <div className="relative w-full md:w-1/3">
@@ -236,12 +236,12 @@ export const Builds: React.FC = () => {
                                 <div className="flex items-start gap-3">
                                     <MapPin size={18} className="text-gray-400 mt-1" />
                                     <span>
-                                        {build.address ? `${build.address.road}, ${build.address.number}${build.address.neighborhood ? ` - ${build.address.neighborhood}` : ''}${build.address.city ? `, ${build.address.city}` : ''}` : 'No address'}
+                                        {build.address ? `${build.address.road}, ${build.address.number}${build.address.neighborhood ? ` - ${build.address.neighborhood}` : ''}${build.address.city ? `, ${build.address.city}` : ''}` : 'Sem endereço'}
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <DollarSign size={18} className="text-gray-400" />
-                                    <span className="font-medium text-gray-900">{formatCurrency(build.buildCost)} cost</span>
+                                    <span className="font-medium text-gray-900">{formatCurrency(build.buildCost)} custo</span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Calendar size={18} className="text-gray-400" />
@@ -252,8 +252,8 @@ export const Builds: React.FC = () => {
 
                         <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 mt-auto">
                             <div className="flex justify-between items-center text-sm text-gray-500">
-                                <span>Size: <span className="font-medium text-gray-700">{build.buildSize}m²</span></span>
-                                <span>Updated: {formatDate(build.updateAt)}</span>
+                                <span>Tamanho: <span className="font-medium text-gray-700">{build.buildSize}m²</span></span>
+                                <span>Atualizado: {formatDate(build.updateAt)}</span>
                             </div>
                         </div>
                     </div>

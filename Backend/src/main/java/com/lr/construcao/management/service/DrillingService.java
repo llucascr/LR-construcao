@@ -12,6 +12,7 @@ import com.lr.construcao.management.model.Address;
 import com.lr.construcao.management.model.Client;
 import com.lr.construcao.management.model.Condominium;
 import com.lr.construcao.management.model.Drilling;
+import com.lr.construcao.management.repository.ClientRepository;
 import com.lr.construcao.management.repository.DrillingRepository;
 import com.lr.construcao.management.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,14 +32,12 @@ public class DrillingService {
 
     private final DrillingRepository drillingRepository;
     private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
 
     private final AddressService addressService;
     private final ClientService clientService;
 
     public DrillingResponseDTO create(DrillingRequestDTO dto, Long userId) {
-        if (drillingRepository.findDrillingByName(dto.getName()).isPresent()) {
-            throw new EntityAlreadyExistExcpetion("Drilling with name " + dto.getName() + " already exist");
-        }
 
         Drilling drilling = Drilling.builder()
                 .name(dto.getName())
@@ -125,6 +124,16 @@ public class DrillingService {
         Pageable pageable = PageRequest.of(page, numberOfDrilling);
         Page<Drilling> drillings = drillingRepository.findAll(pageable);
 
+        return new PageImpl<>(parsePageObjects(drillings, DrillingResponseDTO.class), pageable, drillings.getTotalElements());
+    }
+
+    public Page<DrillingResponseDTO> findPerforationsByClient(int page, int numberOfDrilling, Long clientId) {
+        Pageable pageable = PageRequest.of(page, numberOfDrilling);
+
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new DataNotFoundException("Client with id" + clientId + "not found"));
+
+        Page<Drilling> drillings = drillingRepository.findDrillingByClient(client, pageable);
         return new PageImpl<>(parsePageObjects(drillings, DrillingResponseDTO.class), pageable, drillings.getTotalElements());
     }
 

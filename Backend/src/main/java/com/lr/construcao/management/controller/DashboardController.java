@@ -1,5 +1,6 @@
 package com.lr.construcao.management.controller;
 
+import com.lr.construcao.management.dto.response.Drilling.DrillingRecentResponseDTO;
 import com.lr.construcao.management.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -43,6 +45,11 @@ public class DashboardController {
     )
     public ResponseEntity<Integer> getTotalClients() {
         return ResponseEntity.status(HttpStatus.OK).body(service.getTotalClients());
+    }
+
+    @GetMapping("/drillingRecent")
+    public ResponseEntity<List<DrillingRecentResponseDTO>> findDrillingRecent() {
+        return ResponseEntity.ok(service.findDrillingRecent());
     }
 
 

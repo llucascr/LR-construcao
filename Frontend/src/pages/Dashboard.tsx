@@ -43,6 +43,11 @@ export const Dashboard: React.FC = () => {
         queryFn: () => clientService.getClients(0, 10)
     });
 
+    const { data: recentDrillings } = useQuery({
+        queryKey: ['dashboard', 'recentDrillings'],
+        queryFn: dashboardService.findDrillingRecent
+    });
+
     const formatCurrency = (value: number | undefined) => {
         if (value === undefined) return 'Carregando...';
         return new Intl.NumberFormat('pt-BR', {
@@ -87,16 +92,32 @@ export const Dashboard: React.FC = () => {
         }
     ];
 
-    const recentDrillings = [
-        { id: 1, client: 'Construtora Silva', date: '02/01/2025', meters: 150, value: 'R$ 12.000', status: 'Concluído' },
-        { id: 2, client: 'João Pereira', date: '28/12/2024', meters: 80, value: 'R$ 6.400', status: 'Em andamento' },
-        { id: 3, client: 'Condomínio Flower', date: '20/12/2024', meters: 320, value: 'R$ 25.600', status: 'Concluído' },
-    ];
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('pt-BR');
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'PAGO': return 'bg-green-100 text-green-800';
+            case 'ATRASADO': return 'bg-red-100 text-red-800';
+            case 'NAO_PAGO': return 'bg-yellow-100 text-yellow-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    const getStatusLabel = (status: string) => {
+        switch (status) {
+            case 'PAGO': return 'PAGO';
+            case 'ATRASADO': return 'ATRASADO';
+            case 'NAO_PAGO': return 'NÃO PAGO';
+            default: return status;
+        }
+    };
 
 
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 h-[calc(100vh-3rem)] flex flex-col">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-800">Visão Geral</h1>
                 <div className="text-sm text-gray-500">
@@ -125,12 +146,12 @@ export const Dashboard: React.FC = () => {
                 })}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
                 {/* Main Column */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 flex flex-col gap-6 h-full min-h-0">
 
                     {/* Featured Build Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden shrink-0">
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
@@ -190,12 +211,12 @@ export const Dashboard: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Recent Drilling Table */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="p-6 border-b border-gray-100">
+                    {/* Recent Drilling Table - adjusted to fit remaining space */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col flex-1 min-h-0">
+                        <div className="p-6 border-b border-gray-100 shrink-0">
                             <h2 className="text-lg font-bold text-gray-800">Perfurações Recentes</h2>
                         </div>
-                        <div className="overflow-x-auto">
+                        <div className="overflow-hidden flex-1">
                             <table className="w-full text-sm text-left">
                                 <thead className="text-xs text-gray-500 uppercase bg-gray-50">
                                     <tr>
@@ -207,16 +228,15 @@ export const Dashboard: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {recentDrillings.map((drill) => (
+                                    {(recentDrillings || []).map((drill) => (
                                         <tr key={drill.id} className="border-b border-gray-50 hover:bg-gray-50">
-                                            <td className="px-6 py-4 font-medium text-gray-900">{drill.client}</td>
-                                            <td className="px-6 py-4">{drill.date}</td>
-                                            <td className="px-6 py-4">{drill.meters}m</td>
-                                            <td className="px-6 py-4">{drill.value}</td>
+                                            <td className="px-6 py-4 font-medium text-gray-900">{drill.clientName}</td>
+                                            <td className="px-6 py-4">{formatDate(drill.startDate)}</td>
+                                            <td className="px-6 py-4">{drill.depth}m</td>
+                                            <td className="px-6 py-4">{formatCurrency(drill.totalValue)}</td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${drill.status === 'Concluído' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                                                    }`}>
-                                                    {drill.status}
+                                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(drill.paymentsStatus)}`}>
+                                                    {getStatusLabel(drill.paymentsStatus)}
                                                 </span>
                                             </td>
                                         </tr>
@@ -229,7 +249,7 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Right Column (Sidebar Widgets) */}
-                <div className="h-full">
+                <div className="h-full min-h-0">
 
                     {/* Quick Clients */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-full flex flex-col">
@@ -237,7 +257,7 @@ export const Dashboard: React.FC = () => {
                             <h2 className="text-lg font-bold text-gray-800">Clientes Principais</h2>
                             <button className="text-gray-400 hover:text-gray-600"><MoreVertical size={18} /></button>
                         </div>
-                        <div className="space-y-4 flex-1 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+                        <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-0">
                             {clientsList?.map((client) => (
                                 <div key={client.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                                     <div className="flex items-center gap-3">
@@ -255,7 +275,7 @@ export const Dashboard: React.FC = () => {
                         </div>
                         <button
                             onClick={() => navigate('/clients')}
-                            className="w-full mt-4 text-center text-sm text-blue-600 hover:text-blue-700 font-medium py-2 border-t pt-4"
+                            className="w-full mt-auto text-center text-sm text-blue-600 hover:text-blue-700 font-medium py-2 border-t pt-4"
                         >
                             Ver Todos os Clientes
                         </button>

@@ -32,8 +32,8 @@ export const DrillingDetailsModal = ({ isOpen, onClose, drilling }: DrillingDeta
                         <div>
                             <p className="text-sm font-medium text-gray-500">Status Financeiro</p>
                             <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${drilling.paymentsStatus === 'PAGO' ? 'bg-green-100 text-green-800' :
-                                    drilling.paymentsStatus === 'ATRASADO' ? 'bg-red-100 text-red-800' :
-                                        'bg-yellow-100 text-yellow-800'
+                                drilling.paymentsStatus === 'ATRASADO' ? 'bg-red-100 text-red-800' :
+                                    'bg-yellow-100 text-yellow-800'
                                 }`}>
                                 {drilling.paymentsStatus === 'PAGO' ? 'PAGO' :
                                     drilling.paymentsStatus === 'ATRASADO' ? 'ATRASADO' : 'NÃO PAGO'}
@@ -78,7 +78,7 @@ export const DrillingDetailsModal = ({ isOpen, onClose, drilling }: DrillingDeta
                             <div>
                                 <p className="text-sm font-medium text-gray-500">CEP</p>
                                 <p className="text-base text-gray-900">
-                                    {drilling.address?.cep || (drilling.address as any)?.Cep || 'N/A'}
+                                    {drilling.address?.Cep || (drilling.address as any)?.cep || 'N/A'}
                                 </p>
                             </div>
                             <div>
@@ -93,11 +93,11 @@ export const DrillingDetailsModal = ({ isOpen, onClose, drilling }: DrillingDeta
                                 <>
                                     <div>
                                         <p className="text-sm font-medium text-gray-500">Condomínio Bloco</p>
-                                        <p className="text-base text-gray-900">{drilling.address.condominium.block || 'N/A'}</p>
+                                        <p className="text-base text-gray-900">{drilling.address.condominium.Block || 'N/A'}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-500">Condomínio Lote</p>
-                                        <p className="text-base text-gray-900">{drilling.address.condominium.lot || 'N/A'}</p>
+                                        <p className="text-base text-gray-900">{drilling.address.condominium.Lot || 'N/A'}</p>
                                     </div>
                                 </>
                             )}
@@ -109,7 +109,7 @@ export const DrillingDetailsModal = ({ isOpen, onClose, drilling }: DrillingDeta
                         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 p-2 rounded">Dados Técnicos</h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-2">
                             <div>
-                                <p className="text-sm font-medium text-gray-500">Tamanho</p>
+                                <p className="text-sm font-medium text-gray-500">Diâmetro Broca</p>
                                 <p className="text-base text-gray-900">{drilling.drillSize} mm</p>
                             </div>
                             <div>
