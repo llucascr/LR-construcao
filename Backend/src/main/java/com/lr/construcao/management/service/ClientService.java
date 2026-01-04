@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static com.lr.construcao.management.mapper.ObjectMapper.*;
 
@@ -29,16 +30,16 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
 
-    public ClientResponseDTO create(ClientRequestDTO dto, Long userId) {
+    public ClientResponseDTO create(ClientRequestDTO dto, String userEmail) {
         if (clientRepository.findClientByEmail(dto.getEmail()).isPresent()) {
             throw new EntityAlreadyExistExcpetion("Client with email " + dto.getEmail() + " Already exist");
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException("Client wit id " + userId + " not found"));
+        User user = userRepository.findOpUserByEmail(userEmail)
+                .orElseThrow(() -> new DataNotFoundException("Client with email " + userEmail + " not found"));
 
         if (user.getActive() == false) {
-            throw new UserDisableException("The user with id " + userId + " is desactivated and cannot register clients");
+            throw new UserDisableException("The user with email " + userEmail + " is desactivated and cannot register clients");
         }
 
         Client client = Client.builder()
@@ -54,18 +55,21 @@ public class ClientService {
     }
 
     public Client createReturnClient(ClientRequestDTO dto, Long userId) {
-        if (clientRepository.findClientByEmail(dto.getEmail()).isPresent()) {
-            throw new EntityAlreadyExistExcpetion("Client with email " + dto.getEmail() + " Already exist");
+
+        Optional<Client> existingClient = clientRepository.findClientByEmail(dto.getEmail());
+
+        if (existingClient.isPresent()) {
+            return existingClient.get();
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException("Client wit id " + userId + " not found"));
+                .orElseThrow(() -> new DataNotFoundException("User with id " + userId + " not found"));
 
-        if (user.getActive() == false) {
+        if (!user.getActive()) {
             throw new UserDisableException("The user with id " + userId + " is desactivated and cannot register clients");
         }
 
-        return Client.builder()
+        Client client = Client.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .phone(dto.getPhone())
@@ -73,6 +77,9 @@ public class ClientService {
                 .updateAt(LocalDateTime.now())
                 .user(user)
                 .build();
+
+        clientRepository.save(client);
+        return client;
     }
 
     public ClientResponseDTO update(ClientRequestDTO dto, Long clientId) {
@@ -108,7 +115,7 @@ public class ClientService {
 
     public ClientResponseDTO findById(Long id) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Client wit id " + id + " not found"));
+                .orElseThrow(() -> new DataNotFoundException("Client with id " + id + " not found"));
 
         return parseObject(client, ClientResponseDTO.class);
     }

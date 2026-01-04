@@ -1,8 +1,8 @@
 import { api } from './api';
-import type { Client, Page, ClientInput } from '../types';
+import type { Client, ClientInput, Page } from '../types';
 
 export const clientService = {
-    getClients: async (page = 0, size = 10): Promise<Client[]> => {
+    getClients: async (page = 0, size = 9): Promise<Client[]> => {
         const response = await api.get<Client[]>(`/client/findAll`, {
             params: {
                 page,
@@ -12,12 +12,13 @@ export const clientService = {
         return response.data;
     },
 
-    create: async (client: ClientInput, userId: number): Promise<Client> => {
-        const response = await api.post<Client>('/client/create', client, {
-            params: {
-                userId
-            }
-        });
+    create: async (client: ClientInput, userEmail: string): Promise<Client> => {
+        console.log(`[clientService] create called with userEmail: ${userEmail}`);
+        if (!userEmail) {
+            console.error('[clientService] userEmail is missing!');
+        }
+        // Manually constructing URL to ensure it's sent as query param
+        const response = await api.post<Client>(`/client/create?userEmail=${encodeURIComponent(userEmail)}`, client);
         return response.data;
     },
 

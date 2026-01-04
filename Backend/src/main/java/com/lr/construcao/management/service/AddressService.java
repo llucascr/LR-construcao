@@ -87,7 +87,7 @@ public class AddressService {
         }
 
         if (dto.getCondominiumBlock() == null || dto.getCondominiumLot() == null) {
-            Address address = Address.builder()
+            return Address.builder()
                     .road(dto.getRoad())
                     .numberAddress(dto.getNumberAddress())
                     .neighborhood(dto.getNeighborhood())
@@ -96,11 +96,9 @@ public class AddressService {
                     .createAt(LocalDateTime.now())
                     .updateAt(LocalDateTime.now())
                     .build();
-
-            return address;
         }
 
-        Address address = Address.builder()
+        return Address.builder()
                 .road(dto.getRoad())
                 .numberAddress(dto.getNumberAddress())
                 .neighborhood(dto.getNeighborhood())
@@ -110,9 +108,6 @@ public class AddressService {
                 .createAt(LocalDateTime.now())
                 .updateAt(LocalDateTime.now())
                 .build();
-
-
-        return address;
     }
 
     public AddressResponseDTO update(AddressRequestDTO dto, Long addressId) {

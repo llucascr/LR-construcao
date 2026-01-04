@@ -28,9 +28,9 @@ public class ClientController {
     )
     public ResponseEntity<ClientResponseDTO> create(
             @RequestBody @Valid ClientRequestDTO dto,
-            @NonNull @RequestParam Long userId
+            @NonNull @RequestParam String userEmail
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto, userId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto, userEmail));
     }
 
     @GetMapping(

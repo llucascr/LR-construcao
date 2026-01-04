@@ -3,6 +3,8 @@ package com.lr.construcao.management.controller;
 import com.lr.construcao.management.dto.request.User.UserRequestDTO;
 import com.lr.construcao.management.dto.response.DeleteResponseDTO;
 import com.lr.construcao.management.dto.response.User.UserResponseDTO;
+import com.lr.construcao.management.dto.security.AccountCredentialsDTO;
+import com.lr.construcao.management.service.AuthService;
 import com.lr.construcao.management.service.UserService;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -21,12 +23,8 @@ public class UserController {
 
     private final UserService service;
 
-    @PostMapping(
-            value = "/create",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<UserResponseDTO> create(@Valid @RequestBody UserRequestDTO dto) {
+    @PostMapping("/create")
+    public ResponseEntity<AccountCredentialsDTO> create(@RequestBody AccountCredentialsDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 

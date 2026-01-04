@@ -1,5 +1,20 @@
-export type PaymentStatus = 'PAID' | 'NOT_PAID' | 'LATE';
-export type BuildStatus = 'WAITING' | 'EXECUTION' | 'FINISHED';
+export type PaymentStatus = 'PAGO' | 'NAO_PAGO' | 'ATRASADO';
+export type BuildStatus = 'EM_ESPERA' | 'CONSTRUINDO' | 'CONCLUIDO';
+
+export interface AccountCredentialsDTO {
+    username?: string; // or email, based on your backend. The prompt says "credentials", typically username/email + password
+    email?: string; // Supports both if needed, but usually one is the ID
+    password?: string;
+}
+
+export interface TokenDTO {
+    email: string;
+    authenticated: boolean;
+    created: string; // Date
+    expiration: string; // Date
+    accessToken: string;
+    refreshToken: string;
+}
 
 export interface Page<T> {
     content: T[];
@@ -18,8 +33,8 @@ export interface User {
     email: string;
     password?: string; // Optional for frontend display
     active: boolean;
-    create_at: string; // ISO Date string
-    update_at: string;
+    createAt: string; // ISO Date string
+    updateAt: string;
 }
 
 export interface Client {
@@ -28,8 +43,8 @@ export interface Client {
     name: string;
     email: string;
     phone: string;
-    create_at: string;
-    update_at: string;
+    createAt: string;
+    updateAt: string;
 }
 
 export interface ClientInput {
@@ -40,8 +55,8 @@ export interface ClientInput {
 
 export interface Condominium {
     id: number;
-    block: string;
-    lot: string;
+    Block: string;
+    Lot: string;
 }
 
 export interface Address {
@@ -50,24 +65,38 @@ export interface Address {
     number: string;
     neighborhood: string;
     city: string;
-    cep: string;
+    Cep: string;
     condominium_id?: number | null;
     condominium?: Condominium; // Optional nested object if populated
 }
 
 export interface Drilling {
-    id: number;
-    client_id: number;
-    address_id: number;
-    user_id: number;
-    drill_size: string; // or number depending on unit. Schema says "drill_size".
+    id?: number;
+    name: string;
+    drillSize: number;
     depth: number;
-    drill_quantities: number;
-    price_meter: number;
+    drillQuatities: number; // Backend typo: drillQuatities
+    priceMeter: number;
     invoice: boolean;
-    payments_status: PaymentStatus;
-    start_date: string;
-    end_date?: string;
+    paymentsStatus: PaymentStatus;
+    totalValue: number;
+    startDate: string;
+    endDate?: string;
+    createAt: string;
+    updateAt: string;
+    address: Address;
+    client: Client;
+    user: User;
+}
+
+export interface DrillingRecentResponseDTO {
+    id: number;
+    name: string;
+    clientName: string;
+    totalValue: number;
+    paymentsStatus: PaymentStatus;
+    startDate: string;
+    depth: number;
 }
 
 export interface Build {
@@ -83,4 +112,96 @@ export interface Build {
     status: BuildStatus;
     start_date: string;
     end_date?: string;
+}
+
+export interface DrillingInput {
+    name: string;
+    drillSize: number;
+    depth: number;
+    drillQuatities: number;
+    priceMeter: number;
+    invoice: boolean;
+    // paymentsStatus default is used in backend
+    startDate: string;
+    endDate: string;
+
+    // Address fields
+    road: string;
+    numberAddress: string;
+    neighborhood: string;
+    city: string;
+    Cep: string;
+    condominiumBlock: string;
+    condominiumLot: string;
+
+    // Client fields
+    ClientName: string;
+    Clientemail: string;
+    ClientPhone: string;
+}
+
+export interface BuildResponseDTO {
+    id: number;
+    name: string;
+    buildSize: number;
+    totalPaid: number;
+    buildCost: number; // Replaced qtdTotalPayments & paymentsValue
+    status: BuildStatus;
+    startDate: string;
+    endDate: string;
+    createAt: string;
+    updateAt: string;
+    address: Address;
+    client: Client;
+    user: User;
+}
+
+export interface BuildRequestDTO {
+    name: string;
+    buildSize: number;
+    totalPaid: number;
+    buildCost: number;
+    startDate: string;
+    endDate: string;
+
+    // Flattened Address
+    road: string;
+    numberAddress: string;
+    neighborhood: string;
+    city: string;
+    Cep: string;
+    condominiumBlock: string;
+    condominiumLot: string;
+
+    // Flattened Client
+    ClientName: string;
+    Clientemail: string;
+    ClientPhone: string;
+}
+
+// Create DTO is now identical to BuildRequestDTO
+export type CreateBuildRequestDTO = BuildRequestDTO;
+
+export interface TotalPaidResponseDTO {
+    addedValue: number;
+    totalPaid: number;
+}
+
+export type StatusBuild =
+    | 'PLANEJAMENTO'
+    | 'EM_ANDAMENTO'
+    | 'EM_ACABAMENTO'
+    | 'CONCLUIDO'
+    | 'PARALISADO';
+
+export interface BuildHighlightsResponseDTO {
+    buildName: string;
+    road: string;
+    neighborhood: string;
+    numberAddress: string;
+    statusBuild: StatusBuild;
+    startDate: string; // LocalDate from backend becomes string in JSON
+    endDate: string;
+    buildCost: number;
+    progress: number;
 }

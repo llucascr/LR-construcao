@@ -48,11 +48,8 @@ public class Build {
     @Column(name = "total_paid", nullable = false, precision = 19, scale = 2)
     private BigDecimal totalPaid;
 
-    @Column(name = "qtd_total_payments", nullable = false, precision = 19, scale = 0)
-    private BigInteger qtdTotalPayments;
-
-    @Column(name = "payments_value", nullable = false, precision = 19, scale = 2)
-    private BigDecimal paymentsValue;
+    @Column(name = "build_cost", nullable = false, precision = 19, scale = 2)
+    private BigDecimal buildCost;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)

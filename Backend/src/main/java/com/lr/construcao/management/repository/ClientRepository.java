@@ -19,4 +19,9 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     WHERE UPPER(c.name) LIKE UPPER(CONCAT('%', :name, '%'))
     """)
     Page<Client> SearchByName(@Param("name") String name, Pageable pageable);
+
+    @Query("""
+    SELECT COUNT(*) FROM Client
+        """)
+    Integer getTotalClients();
 }

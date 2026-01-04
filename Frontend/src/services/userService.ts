@@ -2,7 +2,7 @@ import { api } from './api';
 import type { User, Page } from '../types';
 
 export const userService = {
-    getUsers: async (page = 0, size = 4): Promise<Page<User>> => {
+    getUsers: async (page = 0, size = 100): Promise<Page<User>> => {
         try {
             const response = await api.get<Page<User>>('/user/findAll', {
                 params: {
