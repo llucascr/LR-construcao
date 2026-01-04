@@ -1,0 +1,32 @@
+cors:
+  originPatterns: http://localhost:8080,http://localhost:5173
+security:
+  jwt:
+    token:
+      secret-key: 53cr37
+      expire-lenght: 3600000
+spring:
+  application:
+    name: management
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    database-platform: org.hibernate.dialect.OracleDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+    show_sql: false
+    open-in-view: false
+logging:
+  level:
+    root: info
+spring-doc:
+  paths-to-match:
+    - /api/v1/**
+    - /auth/**
+  swagger-ui:
+    use-root-path: true

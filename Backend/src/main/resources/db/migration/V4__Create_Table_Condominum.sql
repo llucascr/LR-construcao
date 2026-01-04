@@ -1,0 +1,8 @@
+CREATE SEQUENCE condominium_seq
+    START WITH 1 INCREMENT BY 50 NOCACHE NOCYCLE;
+
+CREATE TABLE tb_condominium (
+    id NUMBER(19, 0) DEFAULT condominium_seq.nextval PRIMARY KEY NOT NULL,
+    block VARCHAR2(10 CHAR) NOT NULL ,
+    lot VARCHAR2(10 CHAR) NOT NULL
+);
