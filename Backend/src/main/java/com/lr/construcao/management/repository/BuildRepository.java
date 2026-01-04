@@ -28,4 +28,9 @@ public interface BuildRepository extends JpaRepository<Build, Long> {
 """)
     BigDecimal getTotalPaidBuildMonth(@Param("year") int year);
 
+    @Query("""
+    SELECT b FROM Build b WHERE b.status = 'CONSTRUINDO'
+    """)
+    Optional<Build> findBuildHighlight();
+
 }

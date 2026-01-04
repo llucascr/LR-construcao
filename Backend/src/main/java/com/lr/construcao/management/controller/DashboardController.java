@@ -1,5 +1,6 @@
 package com.lr.construcao.management.controller;
 
+import com.lr.construcao.management.dto.response.Build.BuildHighlightsResponseDTO;
 import com.lr.construcao.management.dto.response.Drilling.DrillingRecentResponseDTO;
 import com.lr.construcao.management.service.DashboardService;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,11 @@ public class DashboardController {
     @GetMapping("/drillingRecent")
     public ResponseEntity<List<DrillingRecentResponseDTO>> findDrillingRecent() {
         return ResponseEntity.ok(service.findDrillingRecent());
+    }
+
+    @GetMapping("/buildHighlight")
+    public ResponseEntity<BuildHighlightsResponseDTO> findBuilHighlight() {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findBuildHighlight());
     }
 
 

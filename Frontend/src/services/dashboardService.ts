@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { DrillingRecentResponseDTO } from '../types';
+import type { DrillingRecentResponseDTO, BuildHighlightsResponseDTO } from '../types';
 
 export const dashboardService = {
     getTotalDrillingMonth: async () => {
@@ -20,6 +20,10 @@ export const dashboardService = {
     },
     findDrillingRecent: async () => {
         const response = await api.get<DrillingRecentResponseDTO[]>('/dashboard/drillingRecent');
+        return response.data;
+    },
+    findBuildHighlight: async () => {
+        const response = await api.get<BuildHighlightsResponseDTO>('/dashboard/buildHighlight');
         return response.data;
     }
 };

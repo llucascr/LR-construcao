@@ -48,6 +48,11 @@ export const Dashboard: React.FC = () => {
         queryFn: dashboardService.findDrillingRecent
     });
 
+    const { data: highlightBuild } = useQuery({
+        queryKey: ['dashboard', 'highlightBuild'],
+        queryFn: dashboardService.findBuildHighlight
+    });
+
     const formatCurrency = (value: number | undefined) => {
         if (value === undefined) return 'Carregando...';
         return new Intl.NumberFormat('pt-BR', {
@@ -114,6 +119,17 @@ export const Dashboard: React.FC = () => {
         }
     };
 
+    const getBuildStatusLabel = (status: string) => {
+        switch (status) {
+            case 'PLANEJAMENTO': return 'Planejamento';
+            case 'EM_ANDAMENTO': return 'Em Andamento';
+            case 'EM_ACABAMENTO': return 'Em Acabamento';
+            case 'CONCLUIDO': return 'Concluído';
+            case 'PARALISADO': return 'Paralisado';
+            default: return status;
+        }
+    };
+
 
 
     return (
@@ -151,65 +167,67 @@ export const Dashboard: React.FC = () => {
                 <div className="lg:col-span-2 flex flex-col gap-6 h-full min-h-0">
 
                     {/* Featured Build Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden shrink-0">
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
-                                    <HardHat size={20} />
+                    {highlightBuild && (
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden shrink-0">
+                            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
+                                        <HardHat size={20} />
+                                    </div>
+                                    <h2 className="text-lg font-bold text-gray-800">Obra em Destaque</h2>
                                 </div>
-                                <h2 className="text-lg font-bold text-gray-800">Obra em Destaque</h2>
+                                <button className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1">
+                                    Ver Detalhes <ArrowRight size={16} />
+                                </button>
                             </div>
-                            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1">
-                                Ver Detalhes <ArrowRight size={16} />
-                            </button>
-                        </div>
-                        <div className="p-6">
-                            <div className="flex flex-col md:flex-row gap-6">
-                                {/* Placeholder for build image/map */}
-                                <div className="w-full md:w-1/3 h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
-                                    <MapPin size={48} opacity={0.5} />
-                                </div>
-                                <div className="flex-1 space-y-4">
-                                    <div>
-                                        <div className="flex justify-between items-center mb-1">
-                                            <h3 className="text-xl font-bold text-gray-800">Residencial Alphaville</h3>
-                                            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
-                                                Em Acabamento
-                                            </span>
-                                        </div>
-                                        <p className="text-gray-500 text-sm flex items-center gap-1">
-                                            <MapPin size={14} /> Alameda das Flores, 120 - Barueri
-                                        </p>
+                            <div className="p-6">
+                                <div className="flex flex-col md:flex-row gap-6">
+                                    {/* Placeholder for build image/map */}
+                                    <div className="w-full md:w-1/3 h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
+                                        <MapPin size={48} opacity={0.5} />
                                     </div>
+                                    <div className="flex-1 space-y-4">
+                                        <div>
+                                            <div className="flex justify-between items-center mb-1">
+                                                <h3 className="text-xl font-bold text-gray-800">{highlightBuild.buildName}</h3>
+                                                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                                    {getBuildStatusLabel(highlightBuild.statusBuild)}
+                                                </span>
+                                            </div>
+                                            <p className="text-gray-500 text-sm flex items-center gap-1">
+                                                <MapPin size={14} /> {highlightBuild.road}, {highlightBuild.numberAddress} - {highlightBuild.neighborhood}
+                                            </p>
+                                        </div>
 
-                                    <div>
-                                        <div className="flex justify-between text-sm mb-1">
-                                            <span className="text-gray-600">Progresso</span>
-                                            <span className="font-bold text-gray-800">75%</span>
+                                        <div>
+                                            <div className="flex justify-between text-sm mb-1">
+                                                <span className="text-gray-600">Progresso</span>
+                                                <span className="font-bold text-gray-800">{highlightBuild.progress}%</span>
+                                            </div>
+                                            <div className="w-full bg-gray-100 rounded-full h-2.5">
+                                                <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${highlightBuild.progress}%` }}></div>
+                                            </div>
                                         </div>
-                                        <div className="w-full bg-gray-100 rounded-full h-2.5">
-                                            <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '75%' }}></div>
-                                        </div>
-                                    </div>
 
-                                    <div className="grid grid-cols-3 gap-4 text-sm">
-                                        <div>
-                                            <p className="text-gray-500 text-xs">Início</p>
-                                            <p className="font-medium">10/10/2024</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-gray-500 text-xs">Previsão</p>
-                                            <p className="font-medium">20/02/2025</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-gray-500 text-xs">Custo</p>
-                                            <p className="font-medium text-green-600">R$ 450k</p>
+                                        <div className="grid grid-cols-3 gap-4 text-sm">
+                                            <div>
+                                                <p className="text-gray-500 text-xs">Início</p>
+                                                <p className="font-medium">{formatDate(highlightBuild.startDate)}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500 text-xs">Previsão</p>
+                                                <p className="font-medium">{formatDate(highlightBuild.endDate)}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500 text-xs">Custo</p>
+                                                <p className="font-medium text-green-600">{formatCurrency(highlightBuild.buildCost)}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Recent Drilling Table - adjusted to fit remaining space */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col flex-1 min-h-0">

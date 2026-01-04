@@ -186,3 +186,22 @@ export interface TotalPaidResponseDTO {
     addedValue: number;
     totalPaid: number;
 }
+
+export type StatusBuild =
+    | 'PLANEJAMENTO'
+    | 'EM_ANDAMENTO'
+    | 'EM_ACABAMENTO'
+    | 'CONCLUIDO'
+    | 'PARALISADO';
+
+export interface BuildHighlightsResponseDTO {
+    buildName: string;
+    road: string;
+    neighborhood: string;
+    numberAddress: string;
+    statusBuild: StatusBuild;
+    startDate: string; // LocalDate from backend becomes string in JSON
+    endDate: string;
+    buildCost: number;
+    progress: number;
+}
