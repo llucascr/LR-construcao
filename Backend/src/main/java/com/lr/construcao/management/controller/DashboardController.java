@@ -1,5 +1,6 @@
 package com.lr.construcao.management.controller;
 
+import com.lr.construcao.management.controller.Docs.DashboardControllerDoc;
 import com.lr.construcao.management.dto.response.Build.BuildHighlightsResponseDTO;
 import com.lr.construcao.management.dto.response.Drilling.DrillingRecentResponseDTO;
 import com.lr.construcao.management.service.DashboardService;
@@ -16,44 +17,42 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/dashboard")
-public class DashboardController {
+public class DashboardController implements DashboardControllerDoc {
 
     private final DashboardService service;
 
-    @GetMapping(
-            value = "/totalDrillingMonth"
-    )
+    @GetMapping("/totalDrillingMonth")
+    @Override
     public ResponseEntity<Integer> getTotalDrillingMonth() {
         return ResponseEntity.status(HttpStatus.OK).body(service.getTotalDrillingMonth());
     }
 
-    @GetMapping(
-            value = "/monthlyRevenue"
-    )
+    @GetMapping("/monthlyRevenue")
+    @Override
     public ResponseEntity<BigDecimal> getMonthlyRevenue() {
         return ResponseEntity.status(HttpStatus.OK).body(service.getMonthlyRevenue());
     }
 
-    @GetMapping(
-            value = "/totalPaidBuildMonth"
-    )
+    @GetMapping("/totalPaidBuildMonth")
+    @Override
     public ResponseEntity<BigDecimal> getTotalPaidBuildMonth() {
         return ResponseEntity.status(HttpStatus.OK).body(service.getTotalPaidBuildMonth());
     }
 
-    @GetMapping(
-            value = "/totalClients"
-    )
+    @GetMapping("/totalClients")
+    @Override
     public ResponseEntity<Integer> getTotalClients() {
         return ResponseEntity.status(HttpStatus.OK).body(service.getTotalClients());
     }
 
     @GetMapping("/drillingRecent")
+    @Override
     public ResponseEntity<List<DrillingRecentResponseDTO>> findDrillingRecent() {
         return ResponseEntity.ok(service.findDrillingRecent());
     }
 
     @GetMapping("/buildHighlight")
+    @Override
     public ResponseEntity<BuildHighlightsResponseDTO> findBuilHighlight() {
         return ResponseEntity.status(HttpStatus.OK).body(service.findBuildHighlight());
     }
