@@ -1,5 +1,6 @@
 package com.lr.construcao.management.controller;
 
+import com.lr.construcao.management.controller.Docs.BuildControllerDoc;
 import com.lr.construcao.management.dto.enuns.StatusBuild;
 import com.lr.construcao.management.dto.request.Build.BuildRequestDTO;
 import com.lr.construcao.management.dto.response.Build.BuildResponseDTO;
@@ -20,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/build")
-public class BuildController {
+public class BuildController implements BuildControllerDoc {
 
     private final BuildService service;
 
@@ -29,6 +30,7 @@ public class BuildController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<BuildResponseDTO> create(
             @Valid @RequestBody BuildRequestDTO dto,
             @NonNull @RequestParam Long userId
@@ -41,6 +43,7 @@ public class BuildController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<BuildResponseDTO> update(
             @Valid @RequestBody BuildRequestDTO dto,
             @NonNull @RequestParam Long buildId) {
@@ -51,6 +54,7 @@ public class BuildController {
             value = "/changeStatus",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<StatusBuildResponseDTO> changeStatus(
             @RequestParam StatusBuild statusBuild, @NonNull @RequestParam Long buildId) {
         return ResponseEntity.status(HttpStatus.OK).body(service.changeStatus(statusBuild, buildId));
@@ -60,6 +64,7 @@ public class BuildController {
             value = "/addpayment",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<TotalPaidResponseDTO> addPayment (
             @RequestParam Double payment, @NonNull @RequestParam Long buildId) {
         return ResponseEntity.status(HttpStatus.OK).body(service.addPayment(payment, buildId));
@@ -69,6 +74,7 @@ public class BuildController {
             value = "/findAll",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<List<BuildResponseDTO>> findAll(
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int numberOfBuild
@@ -80,6 +86,7 @@ public class BuildController {
             value = "/searchByName",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<List<BuildResponseDTO>> searchByName(
             @RequestParam String name,
             @RequestParam(required = false, defaultValue = "0") int page,
