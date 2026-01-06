@@ -1,5 +1,6 @@
 package com.lr.construcao.management.controller;
 
+import com.lr.construcao.management.controller.Docs.AddressControllerDoc;
 import com.lr.construcao.management.dto.request.Address.AddressRequestDTO;
 import com.lr.construcao.management.dto.response.Address.AddressResponseDTO;
 import com.lr.construcao.management.dto.response.DeleteResponseDTO;
@@ -17,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/address")
-public class AddressController {
+public class AddressController implements AddressControllerDoc {
 
     private final AddressService service;
 
@@ -26,6 +27,7 @@ public class AddressController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<AddressResponseDTO> create(@Valid @RequestBody AddressRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
@@ -35,6 +37,7 @@ public class AddressController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<AddressResponseDTO> update(
             @Valid @RequestBody AddressRequestDTO dto,
             @RequestParam Long addressId)
@@ -46,6 +49,7 @@ public class AddressController {
             value = "/delete",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<DeleteResponseDTO> delete(@NonNull @RequestParam Long addressId) {
         return ResponseEntity.status(HttpStatus.OK).body(service.delete(addressId));
     }
@@ -54,6 +58,7 @@ public class AddressController {
             value = "/findAll",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<List<AddressResponseDTO>> findAll(
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int numberOfAddress
@@ -65,6 +70,7 @@ public class AddressController {
             value = "/findById",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<AddressResponseDTO> findById(@NonNull @RequestParam Long addressId) {
         return ResponseEntity.status(HttpStatus.OK).body(service.findById(addressId));
     }
