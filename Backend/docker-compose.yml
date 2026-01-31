@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  app-lrconstrucao:
+    image: lrconstrucao-api
+    container_name: lrconstrucao-backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - /home/lucas/Documents/Oracle/Wallet_LRConstrucao:/app/oracle/wallet
+    environment:
+      - DB_URL=jdbc:oracle:thin:@lrconstrucao_high?TNS_ADMIN=/app/oracle/wallet
+      - DB_USERNAME=management_api
+      - DB_PASSWORD=Lrconstrucao__1209
+      - EMAIL_USERNAME=lucasdecamposranzani@gmail.com
+      - EMAIL_PASSWORD=qsaz mcqd unuv nlol
+

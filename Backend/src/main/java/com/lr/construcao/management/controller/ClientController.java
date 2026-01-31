@@ -65,7 +65,7 @@ public class ClientController implements ClientControllerDoc {
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int numberOfClients
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findByName(name, page, numberOfClients).getContent());
+        return ResponseEntity.status(HttpStatus.OK).body(service.searchByName(name, page, numberOfClients).getContent());
     }
 
     @PutMapping(
