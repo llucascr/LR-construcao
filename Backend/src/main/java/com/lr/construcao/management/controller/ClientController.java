@@ -1,5 +1,6 @@
 package com.lr.construcao.management.controller;
 
+import com.lr.construcao.management.controller.Docs.ClientControllerDoc;
 import com.lr.construcao.management.dto.request.Client.ClientRequestDTO;
 import com.lr.construcao.management.dto.response.Client.ClientResponseDTO;
 import com.lr.construcao.management.dto.response.DeleteResponseDTO;
@@ -17,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/client")
-public class ClientController {
+public class ClientController implements ClientControllerDoc {
 
     private final ClientService service;
 
@@ -26,6 +27,7 @@ public class ClientController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<ClientResponseDTO> create(
             @RequestBody @Valid ClientRequestDTO dto,
             @NonNull @RequestParam String userEmail
@@ -37,6 +39,7 @@ public class ClientController {
             value = "/findAll",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<List<ClientResponseDTO>> findAll(
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int numberOfClients) {
@@ -47,6 +50,7 @@ public class ClientController {
             value = "/findById",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<ClientResponseDTO> findById(@NonNull @RequestParam Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
     }
@@ -55,12 +59,13 @@ public class ClientController {
             value = "/findByName",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<List<ClientResponseDTO>> findByName(
             @NonNull @RequestParam String name,
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int numberOfClients
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findByName(name, page, numberOfClients).getContent());
+        return ResponseEntity.status(HttpStatus.OK).body(service.searchByName(name, page, numberOfClients).getContent());
     }
 
     @PutMapping(
@@ -68,6 +73,7 @@ public class ClientController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<ClientResponseDTO> update(@RequestBody @Valid ClientRequestDTO dto,
                                                     @NonNull @RequestParam Long clientId) {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(dto, clientId));
@@ -77,6 +83,7 @@ public class ClientController {
             value = "/delete",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @Override
     public ResponseEntity<DeleteResponseDTO> delete(@NonNull @RequestParam Long clientId) {
         return ResponseEntity.status(HttpStatus.OK).body(service.delete(clientId));
     }

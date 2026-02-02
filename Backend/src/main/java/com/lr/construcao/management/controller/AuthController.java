@@ -1,5 +1,6 @@
 package com.lr.construcao.management.controller;
 
+import com.lr.construcao.management.controller.Docs.AuthControllerDoc;
 import com.lr.construcao.management.dto.security.AccountCredentialsDTO;
 import com.lr.construcao.management.dto.security.TokenDTO;
 import com.lr.construcao.management.service.AuthService;
@@ -12,11 +13,12 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/auth/")
-public class AuthController {
+public class AuthController implements AuthControllerDoc {
 
     private final AuthService authService;
 
     @PostMapping("/signin")
+    @Override
     public ResponseEntity<?> signin(@RequestBody AccountCredentialsDTO credentials) {
 
         if (credentialIsInvalid(credentials) ) {
@@ -33,6 +35,7 @@ public class AuthController {
     }
 
     @PutMapping("/refresh")
+    @Override
     public ResponseEntity<?> refreshToken(
             @RequestParam String email,
             @RequestHeader("Authorization") String refreshToken) {
