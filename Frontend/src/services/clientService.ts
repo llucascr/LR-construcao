@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { Client, ClientInput, Page } from '../types';
+import type { Client, ClientInput } from '../types';
 
 export const clientService = {
     getClients: async (page = 0, size = 9): Promise<Client[]> => {

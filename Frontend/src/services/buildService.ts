@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { Page, BuildResponseDTO, BuildRequestDTO, CreateBuildRequestDTO, TotalPaidResponseDTO } from '../types';
+import type { BuildResponseDTO, BuildRequestDTO, CreateBuildRequestDTO, TotalPaidResponseDTO } from '../types';
 
 
 export const buildService = {

@@ -1,10 +1,8 @@
-import axios from 'axios';
+import { api } from './api';
 import type { AccountCredentialsDTO, TokenDTO } from '../types';
 
-const API_URL = 'http://localhost:8080/api/v1/auth'; // Adjust if your backend port is different
-
 export const signin = async (credentials: AccountCredentialsDTO): Promise<TokenDTO> => {
-    const response = await axios.post(`${API_URL}/signin`, credentials);
+    const response = await api.post(`/auth/signin`, credentials);
     console.log('Signin raw response:', response.data);
 
     // Handle case where backend returns detailed ResponseEntity JSON
@@ -16,7 +14,7 @@ export const signin = async (credentials: AccountCredentialsDTO): Promise<TokenD
 };
 
 export const refreshToken = async (email: string, refreshToken: string): Promise<TokenDTO> => {
-    const response = await axios.put(`${API_URL}/refresh`, null, {
+    const response = await api.put(`/auth/refresh`, null, {
         params: { email },
         headers: { Authorization: `Bearer ${refreshToken}` }
     });
